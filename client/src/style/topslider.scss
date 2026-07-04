@@ -1,0 +1,13 @@
+.swipper-wrapper {
+  width: 100%;
+  height: 350px;
+  .banner {
+    width: 100%;
+    height: 300px;  
+    overflow: hidden;
+    &_image {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}

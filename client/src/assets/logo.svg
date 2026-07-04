@@ -1,0 +1,30 @@
+<svg viewBox="0 0 460 130" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="playGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#dc2626"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon: film-frame with play triangle -->
+  <g transform="translate(10, 15)">
+    <rect x="0" y="0" width="100" height="100" rx="24" fill="url(#playGrad)"/>
+    <!-- film sprocket notches -->
+    <circle cx="14" cy="14" r="4" fill="#0a0a0a" opacity="0.35"/>
+    <circle cx="86" cy="14" r="4" fill="#0a0a0a" opacity="0.35"/>
+    <circle cx="14" cy="86" r="4" fill="#0a0a0a" opacity="0.35"/>
+    <circle cx="86" cy="86" r="4" fill="#0a0a0a" opacity="0.35"/>
+    <!-- play triangle -->
+    <path d="M38 30 L74 50 L38 70 Z" fill="#ffffff"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="128" y="82" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="54" letter-spacing="-1">
+    <tspan fill="#ffffff">My</tspan><tspan fill="#dc2626">Drama</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="130" y="104" font-family="Arial, Helvetica, sans-serif" font-weight="600" font-size="13" letter-spacing="3" fill="#9ca3af">
+    STREAM YOUR STORY
+  </text>
+</svg>
