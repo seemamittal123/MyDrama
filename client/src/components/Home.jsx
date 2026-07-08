@@ -8,10 +8,18 @@ import Show from './Show';
 import { showContext } from '../context/ShowProvider';
 const Home = () => {
   const { allShows, popular, latest, tranding, loading } = useSelector(state => state.show);
-  const { continueWatch } = useSelector(state => state.user);
+  const { continueWatch, history } = useSelector(state => state.user);
   const [dramas, setDramas] = useState({});
 
   const { handleShow } = useContext(showContext);
+
+  const continueWatchShows = continueWatch?.map(item => ({
+    ...item.show_id,
+    completedEpisodesCount: item.completedEpisodesCount,
+    totalEpisodesCount: item.totalEpisodesCount,
+    episode_id: item.episode_id,
+  })) || [];
+
 
   const fetchDramas = async (value) => {
     try {
@@ -37,7 +45,7 @@ const Home = () => {
         </div>
         <div className="container">
           <div className="slider-wrapper">
-            <Slider data={continueWatch} heading={"continue-watching"} handleShow={handleShow} loading={loading} />
+            <Slider data={continueWatchShows} heading={"continue-watching"} handleShow={handleShow} loading={loading} />
           </div>
           <div className="slider-wrapper">
             <Slider data={latest} heading={"Latest-show"} handleShow={handleShow} loading={loading} />

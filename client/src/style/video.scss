@@ -9,14 +9,28 @@ $overlay-gradient: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
   width: 100%;
   background-color: $color-bg;
 
+  .cross {
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff37;
+    border-radius: 100%;
+    backdrop-filter: blur(20px);
+    cursor: pointer;
+  }
+
   video {
     width: 100%;
+    max-height: 100vh;
     aspect-ratio: 16 / 9;
     display: block;
     cursor: pointer;
   }
 
-  // Controls overlay — bottom gradient bar
   &__controls {
     position: absolute;
     left: 0;

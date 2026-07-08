@@ -143,8 +143,7 @@ const AddEpisode = () => {
       if (data.success) {
         toast.success(data.message);
         if (!isEditMode) {
-          // Naya episode banne ke baad form reset ya show page pe wapas bhej do
-          navigate(`/show/${form.show_id}`);
+          navigate(`/admin/shows/${form.show_id}`);
         }
       }
     } catch (error) {

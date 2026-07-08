@@ -5,7 +5,6 @@ export const updateProgress = async (req, res) => {
   try {
     const user_id = req.userId;
     const { episode_id, watched_duration, total_duration } = req.body;
-
     if (!episode_id) {
       return res.status(400).json({ message: "episode_id is required" });
     }
@@ -22,6 +21,7 @@ export const updateProgress = async (req, res) => {
     const completed =
       total_duration && watched_duration >= total_duration * 0.9;
 
+
     // Ye line sabse important hai — isi se continue watching kaam karta hai
     const history = await WatchHistory.findOneAndUpdate(
       { user_id, episode_id },
@@ -32,7 +32,7 @@ export const updateProgress = async (req, res) => {
         completed,
         last_watched_at: new Date(),
       },
-      { new: true, upsert: true } // agar record nahi hai to naya bana do
+      { new: true, upsert: true }, // agar record nahi hai to naya bana do
     );
 
     return res.status(200).json({ success: true, history });
@@ -61,34 +61,58 @@ export const getContinueWatching = async (req, res) => {
     const user_id = req.userId;
     const limit = parseInt(req.query.limit) || 10;
 
-    const history = await WatchHistory.aggregate([
-      {
-        $match: {
-          user_id: user_id,
-          completed: false,
-          watched_duration: { $gt: 0 },
-        },
-      },
-      { $sort: { last_watched_at: -1 } },
-      {
-        $group: {
-          _id: "$show_id",
-          latestEntry: { $first: "$$ROOT" }, // ek show ka sirf latest episode
-        },
-      },
-      { $replaceRoot: { newRoot: "$latestEntry" } },
-      { $sort: { last_watched_at: -1 } },
-      { $limit: limit },
-    ]);
 
-    const populated = await WatchHistory.populate(history, [
-      { path: "show_id" },
-      { path: "episode_id" },
-    ]);
+    // Step 1: Get all watch history records for this user with watched duration
+    const allHistory = await WatchHistory.find({
+      user_id,
+      watched_duration: { $gt: 0 },
+    })
+      .populate("show_id")
+      .populate("episode_id")
+      .sort({ last_watched_at: -1 });
 
-    return res.status(200).json({ success: true, history: populated });
+
+    // Step 2: Group by show_id and keep only unique shows (latest episode)
+    const showMap = new Map();
+    for (const record of allHistory) {
+      if (!showMap.has(record.show_id._id.toString())) {
+        showMap.set(record.show_id._id.toString(), record);
+      }
+    }
+
+    // Step 3: For each show, count total episodes and completed episodes
+    const continueWatching = [];
+    for (const [showId, record] of showMap) {
+      // Count total episodes in this show
+      const totalEpisodes = await Episode.countDocuments({
+        show_id: record.show_id._id,
+      });
+
+      // Count completed episodes by user in this show
+      const completedEpisodes = await WatchHistory.countDocuments({
+        user_id,
+        show_id: record.show_id._id,
+        completed: true,
+      });
+
+
+      // Only include if NOT all episodes are completed
+      if (completedEpisodes < totalEpisodes) {
+        continueWatching.push({
+          ...record.toObject(),
+          totalEpisodesCount: totalEpisodes,
+          completedEpisodesCount: completedEpisodes,
+        });
+      }
+    }
+
+
+    return res
+      .status(200)
+      .json({ success: true, history: continueWatching.slice(0, limit) });
   } catch (error) {
     console.error("Get continue watching error:", error.message);
+    console.error("Stack:", error.stack);
     return res.status(500).json({ message: `Error: ${error.message}` });
   }
 };
@@ -123,16 +147,19 @@ export const getFullHistory = async (req, res) => {
 export const clearHistory = async (req, res) => {
   try {
     const user_id = req.userId;
-    const { episode_id } = req.body; 
+    const { episode_id } = req.body;
 
     if (episode_id) {
-      
       await WatchHistory.deleteOne({ user_id, episode_id });
-      return res.status(200).json({ success: true, message: "Removed from history" });
+      return res
+        .status(200)
+        .json({ success: true, message: "Removed from history" });
     }
 
     await WatchHistory.deleteMany({ user_id });
-    return res.status(200).json({ success: true, message: "Watch history cleared" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Watch history cleared" });
   } catch (error) {
     console.error("Clear history error:", error.message);
     return res.status(500).json({ message: `Error: ${error.message}` });

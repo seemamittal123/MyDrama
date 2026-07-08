@@ -10,7 +10,6 @@ const ShowCard = ({ show, key }) => {
   const [liked, setLiked] = useState(false)
   const menuRef = useRef(null);
 
-
   const goToAddWatchList = async (e, showId) => {
     e.stopPropagation();
     try {
@@ -69,11 +68,38 @@ const ShowCard = ({ show, key }) => {
       <div className="show-card-expanded">
         <div className="expanded-image-wrapper">
           <img src={show.banner_url} alt={show.title} />
+
+          {/* Progress bar for continue watching */}
+          {show.completedEpisodesCount !== undefined && show.totalEpisodesCount && (
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '4px',
+              backgroundColor: '#333',
+              overflow: 'hidden',
+              zIndex: 1
+            }}>
+              <div style={{
+                height: '100%',
+                backgroundColor: '#e50914',
+                width: `${(show.completedEpisodesCount / show.totalEpisodesCount) * 100}%`,
+                transition: 'width 0.3s ease'
+              }} />
+            </div>
+          )}
         </div>
 
         <div className="expanded-content">
           <div className="expanded-meta-row">
-            <span className="match-score">{show.rating || '96%'} Match</span>
+            {show.completedEpisodesCount !== undefined ? (
+              <>
+                <span className="match-score">{show.completedEpisodesCount}/{show.totalEpisodesCount} Watched</span>
+              </>
+            ) : (
+              <span className="match-score">{show.rating || '96%'} Match</span>
+            )}
             <span className="hd-badge">HD</span>
             <span>{show.session} Session</span>
           </div>

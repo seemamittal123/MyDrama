@@ -16,6 +16,21 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
   const [loading, setloading] = useState(false)
   const navigate = useNavigate();
 
+  // Play button logic - resume last watched or play first
+  const handlePlayClick = () => {
+    if (!episodes || episodes.length === 0) return;
+
+    // Agar show continue watching se khuli hai, toh episode_id available hoga
+    // Warna pehla episode khol do
+    const episodeToPlay = show?.episode_id?._id || episodes[0]._id;
+
+    console.log("Show data:", show);
+    console.log("Episode to play:", episodeToPlay);
+    console.log("All episodes:", episodes);
+
+    navigate(`/Drama/${show.slug}/episode/${episodeToPlay}`);
+  };
+
   const formatDuration = (seconds) => {
     if (!seconds) return "—";
     const m = Math.floor(seconds / 60);
@@ -78,6 +93,7 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
     checkLike();
   }, [])
 
+
   return (
     <>
       <div className="cover-box">
@@ -107,7 +123,7 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
             </div>
 
             <div className="show__actions">
-              <button className="show__play-btn">
+              <button className="show__play-btn" onClick={handlePlayClick}>
                 <Play size={20} fill="black" />
                 Play
               </button>

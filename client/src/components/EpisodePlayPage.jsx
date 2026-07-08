@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import VideoPlayer from "../components/VideoPlayer";
 import axios from "axios";
 import { server_Url } from "../App";
 import loader from '../assets/loader.svg';
+import { ChevronRight } from 'lucide-react';
 
 export default function EpisodePlayerPage() {
-  const { id } = useParams();
+  const { slug, id } = useParams();
+  const navigate = useNavigate();
   const [episode, setEpisode] = useState(null);
   const [savedProgress, setSavedProgress] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [allEpisodes, setAllEpisodes] = useState([]);
+  const [nextEpisode, setNextEpisode] = useState(null);
 
   useEffect(() => {
     const fetchEpisodeData = async () => {
@@ -17,6 +21,22 @@ export default function EpisodePlayerPage() {
         setLoading(true);
         const { data } = await axios.get(`${server_Url}/api/episodes/episode/${id}`, { withCredentials: true });
         setEpisode(data.episode);
+
+        // Fetch all episodes of this show
+        const { data: episodesData } = await axios.get(
+          `${server_Url}/api/episodes/show/${data.episode.show_id}/all/episodes`
+        );
+        setAllEpisodes(episodesData.episodes || []);
+
+        // Find next episode
+        if (episodesData.episodes) {
+          const sortedEpisodes = episodesData.episodes.sort((a, b) => a.episode_number - b.episode_number);
+          const currentIndex = sortedEpisodes.findIndex(ep => ep._id === id);
+          if (currentIndex !== -1 && currentIndex < sortedEpisodes.length - 1) {
+            setNextEpisode(sortedEpisodes[currentIndex + 1]);
+          }
+        }
+
         const { data: progressData } = await axios.get(
           `${server_Url}/api/users/watch-history/progress/${id}`,
           { withCredentials: true }
@@ -29,13 +49,12 @@ export default function EpisodePlayerPage() {
         setLoading(false);
       }
     };
-
     fetchEpisodeData();
   }, [id]);
 
   const handleProgress = async ({ watched_duration, total_duration }) => {
     try {
-      await axios.post(
+      const response = await axios.post(
         `${server_Url}/api/users/watch-history/progress`,
         {
           episode_id: id,
@@ -45,7 +64,13 @@ export default function EpisodePlayerPage() {
         { withCredentials: true }
       );
     } catch (error) {
-      console.log(error?.response);
+      console.log(" Progress error:", error?.response?.data);
+    }
+  };
+
+  const handleNextEpisode = () => {
+    if (nextEpisode && episode) {
+      navigate(`/Drama/${slug}/episode/${nextEpisode._id}`);
     }
   };
 
@@ -71,12 +96,8 @@ export default function EpisodePlayerPage() {
         subtitleUrl={episode.subtitle_url}
         startTime={savedProgress?.watched_duration || 0}
         onProgress={handleProgress}
+        handleNextEpisode={handleNextEpisode}
       />
-
-      <div className="episode-player-page__info">
-        <h2>{episode.title}</h2>
-        <p>Episode {episode.episode_number}</p>
-      </div>
     </div>
   );
 }

@@ -34,7 +34,6 @@ const ShowEpisodes = () => {
       const { data } = await axios.get(`${server_Url}/api/episodes/show/${showId}/all/episodes`, { withCredentials: true });
       if (data.success)
         setEpisodes(data.episodes);
-      console.log(data);
     } catch (error) {
       console.log(error.response);
       toast.error(error.response?.data?.message || "Something went wrong");
