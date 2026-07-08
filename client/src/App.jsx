@@ -9,19 +9,19 @@ import useGetTrandingShows from './hooks/useGetTrandingShows';
 import useGetPopularShows from './hooks/useGetPopularShows';
 import './style/index.scss';
 import useGetAllShows from './hooks/useGetAllShows';
-import useGetUpcommingShows from './hooks/useGetUpcommingShows';
+import useGetContinueWatch from './hooks/useGetContinueWatch';
 export const server_Url = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 
 const App = () => {
 
-  useGetUser();
-  useGetHistory();
-  useGetWatchList();
   useGetLatestShows();
   useGetTrandingShows();
   useGetPopularShows();
   useGetAllShows();
-  useGetUpcommingShows();
+  useGetUser();
+  useGetHistory();
+  useGetContinueWatch();
+  useGetWatchList();
   
   return (
     <>

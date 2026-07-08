@@ -14,6 +14,8 @@ export const createShow = async (req, res) => {
       total_episodes,
       release_year,
       trailer_url,
+      session,
+      cast,
     } = req.body;
 
     if (!title) {
@@ -52,6 +54,8 @@ export const createShow = async (req, res) => {
       poster_url: posterUrl,
       banner_url: bannerUrl,
       trailer_url,
+      session,
+      cast,
     });
 
     return res.status(201).json(show);
@@ -64,7 +68,7 @@ export const createShow = async (req, res) => {
 
 export const editShow = async (req, res) => {
   try {
-    const { slug } = req.params;
+    const { id } = req.params;
     const {
       title,
       description,
@@ -74,13 +78,15 @@ export const editShow = async (req, res) => {
       total_episodes,
       release_year,
       trailer_url,
+      session,
+      cast,
     } = req.body;
 
-    if (!slug) {
-      return res.status(400).json({ message: "Slug is required" });
+    if (!id) {
+      return res.status(400).json({ message: "id is required" });
     }
 
-    const existingShow = await Show.findOne({ slug });
+    const existingShow = await Show.findById(id);
     if (!existingShow) {
       return res.status(404).json({ message: "Show not found" });
     }
@@ -94,7 +100,8 @@ export const editShow = async (req, res) => {
     if (total_episodes) updateData.total_episodes = total_episodes;
     if (release_year) updateData.release_year = release_year;
     if (trailer_url) updateData.trailer_url = trailer_url;
-
+    if (session) updateData.session = session;
+    if(cast) updateData.cast = cast;
     if (req.files && req.files.poster) {
       const posterFile = req.files.poster[0];
       updateData.poster_url = await uploadOnCloudinary(
@@ -113,7 +120,7 @@ export const editShow = async (req, res) => {
       );
     }
 
-    const show = await Show.findOneAndUpdate({ slug }, updateData, {
+    const show = await Show.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     });
@@ -209,12 +216,13 @@ export const searchShow = async (req, res) => {
 export const filterShows = async (req, res) => {
   try {
     const { q } = req.query;
+    const limit = parseInt(req.query.limit) || 10;
 
     if (!q?.trim()) {
       return res.status(400).json({
         message: "Query is required",
       });
-    }
+    } 
 
     const shows = await Show.find({
       $or: [
@@ -222,7 +230,7 @@ export const filterShows = async (req, res) => {
         { country: { $regex: q, $options: "i" } },
         { status: { $regex: q, $options: "i" } },
       ],
-    });
+    }).limit(limit);
 
     res.status(200).json({
       success: true,
@@ -338,21 +346,12 @@ export const toggleLike = async (req, res) => {
 export const checkLikeStatus = async (req, res) => {
   try {
     const { show_id } = req.params;
-    const user_id = req.user._id;
+    const user_id = req.userId;
+
 
     const liked = await Like.findOne({ user_id, show_id });
 
     return res.status(200).json({ success: true, liked: !!liked });
-  } catch (error) {
-    return res.status(500).json({ message: `Error: ${error.message}` });
-  }
-};
-
-export const getUpcommingShow = async (req, res) => {
-  try {
-    const shows = await Show.find();
-    const upcommingShow = shows.filter((show) => show.status == "upcomming");
-    return res.status(200).json({ success: true, shows: upcommingShow });
   } catch (error) {
     return res.status(500).json({ message: `Error: ${error.message}` });
   }

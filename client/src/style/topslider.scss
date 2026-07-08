@@ -1,13 +1,105 @@
-.swipper-wrapper {
-  width: 100%;
-  height: 350px;
-  .banner {
+  @use './mixin.scss' as*;
+
+  .swipper-wrapper {
+    position: relative;
     width: 100%;
-    height: 300px;  
-    overflow: hidden;
-    &_image {
+    height: 400px;
+
+    .banner_image {
+      height: 400px;
+      overflow: hidden;
       width: 100%;
-      height: 100%;
+    }
+
+    .info-section {
+      position: absolute;
+      left: 70px;
+      bottom: 40px;
+      max-width: 350px;
+
+      .title {
+        font-size: 25px;
+        font-weight: 700;
+        margin: 20px 0;
+        text-transform: capitalize;
+      }
+
+      h3 {
+        text-transform: capitalize;
+        @include ellipsis-2;
+        line-height: 20px;
+      }
+
+      .btn-wrapper {
+        margin: 30px 0;
+        @include flex-center;
+        gap: 15px;
+
+        button {
+          width: 50%;
+          height: 40px;
+          border-radius: 10px;
+          @include flex-center;
+          gap: 10px;
+          font-weight: 600;
+
+          svg {
+            width: 20px;
+            height: 20px;
+          }
+        }
+
+        .play {
+          color: black;
+          background: #fff;
+
+          svg {
+            fill: black;
+          }
+        }
+
+        .more-info {
+          background: #ffffff14;
+          backdrop-filter: blur(20px)
+        }
+      }
+    }
+
+    .custom-prev-btn,
+    .custom-next-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .custom-prev-btn {
+      left: 15px;
+    }
+
+    .custom-next-btn {
+      right: 15px;
+    }
+
+    .custom-prev-btn:hover,
+    .custom-next-btn:hover {
+      background: rgba(0, 0, 0, 0.8);
     }
   }
-}
+
+  @media (max-width:448px) {
+    .info-section{
+      display: none;
+    }
+  }

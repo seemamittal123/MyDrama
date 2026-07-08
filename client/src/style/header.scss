@@ -6,6 +6,7 @@
   width: 100%;
   background-color: #000;
   color: #fff;
+  z-index: 9999;
 
   &__container {
     max-width: 64rem; // max-w-5xl
@@ -13,6 +14,7 @@
     @include flex-between;
     padding-left: 5rem; // px-20
     padding-right: 5rem;
+    position: relative;
   }
 
   &__logo {
@@ -27,6 +29,7 @@
       object-fit: cover;
     }
   }
+
 
   &__list {
     list-style: none;
@@ -50,17 +53,41 @@
     }
   }
 
-  &__admin-link {
+  &__open {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: rgba(127, 127, 127, 0.199);
+    backdrop-filter: blur(20px);
     padding: 10px;
-    font-weight: 600;
-    border-bottom: 2px solid #000;
-    transition: border-color 0.5s linear;
-    margin: 0 10px;
+    display: flex !important;
+    flex-direction: column;
 
-    &:hover {
-      border-bottom-color: #fff;
+    .navbar__item {
+      margin: 10px 0;
+      width: 100%;
+       border-top-left-radius: 10px;
+       border-top-right-radius: 10px;
+      &:hover {
+        background: #ffffff2b;
+        backdrop-filter: blur(30px);
+      }
     }
   }
+
+  .sm_btn {
+    display: none;
+    cursor: pointer;
+
+    svg {
+      color: white;
+      width: 23px;
+      height: 23px;
+    }
+  }
+
 
   &__search-btn {
     @include flex-center;
@@ -100,4 +127,23 @@
   }
 }
 
-@media (max-width:748px) {}
+@media (max-width:748px) {
+  .navbar {
+    &__container {
+      padding: 0 20px;
+    }
+
+    &__list {
+      display: none;
+    }
+
+    .sm_btn {
+      display: block !important;
+    }
+
+    &__signin-btn,
+    &__logout-btn {
+      width: 100%;
+    }
+  }
+}

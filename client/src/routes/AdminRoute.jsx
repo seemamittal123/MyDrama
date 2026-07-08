@@ -1,19 +1,16 @@
 
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
-
+import loader from '../assets/loader.svg';
 const AdminRoute = () => {
-  const { user,loading } = useSelector((state) => state.user);
+  const { user, loading } = useSelector((state) => state.user);
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-black">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-neutral-700 border-t-red-600" />
-      </div>
-    );
+    return <div className="spinner">
+      <img src={loader} alt="" /> </div>;
   }
 
- return user && user?.role == "admin" ? <Outlet /> : <Navigate to="/auth" replace />;
+  return user && user?.role == "admin" ? <Outlet /> : <Navigate to="/auth" replace />;
 
 };
 

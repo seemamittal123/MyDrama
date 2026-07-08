@@ -5,8 +5,6 @@ import { server_Url } from '../App';
 import { setWatchList } from '../redux/userSlice';
 
 const useGetWatchList = () => {
-  const { user } = useSelector(state => state.user);
-
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -18,10 +16,8 @@ const useGetWatchList = () => {
         console.log(error.response);
       }
     }
-    if (user?._id) {
       fetchUserWatchList();
-    }
-  }, [dispatch, user?._id])
+  }, [dispatch])
 }
 
 export default useGetWatchList

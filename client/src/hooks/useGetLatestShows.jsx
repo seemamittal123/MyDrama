@@ -5,7 +5,6 @@ import { server_Url } from '../App';
 import { setLatest } from '../redux/showSlice';
 
 const useGetLatestShows = () => {
-  const { user } = useSelector(state => state.user);
 
   const dispatch = useDispatch();
 
@@ -18,10 +17,8 @@ const useGetLatestShows = () => {
         console.log(error.response);
       }
     }
-    if (user?._id) {
-      fetchUserWatchList();
-    }
-  }, [dispatch, user?._id])
+    fetchUserWatchList();
+  }, [dispatch])
 }
 
 export default useGetLatestShows

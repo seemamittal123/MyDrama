@@ -1,0 +1,26 @@
+@use './mixin.scss' as *;
+
+.explore-wrapper {
+  padding: 20px;
+
+  h1 {
+    font-size: 25px;
+    font-weight: 700;
+  }
+
+  .shows-wrapper {
+    padding: 20px;
+    display: grid;
+    gap: 15px;
+    grid-template-columns: repeat(4, 1fr);
+
+    @media (max-width:748px) {
+      grid-template-columns: repeat(2, 1fr);
+      padding: 10px 0;
+    }
+  }
+
+  .empty {
+    min-height: 80vh;
+  }
+}

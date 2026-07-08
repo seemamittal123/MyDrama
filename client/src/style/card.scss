@@ -1,0 +1,232 @@
+.show-card-wrapper {
+  position: relative;
+  cursor: pointer;
+
+  .show-card-poster {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+
+    img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .poster-info {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      right: 16px;
+      padding: 12px 14px;
+      background: rgba(0, 0, 0, 0.55);
+      border-radius: 14px;
+      color: white;
+      backdrop-filter: blur(8px);
+    }
+
+    .poster-label {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 999px;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.2;
+      text-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+    }
+
+    p {
+      margin: 6px 0 0;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .show-card-expanded {
+    display: none;
+    position: absolute;
+    top: -44px;
+    left: -12px;
+    width: 320px;
+    background: #0f0f14;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
+    z-index: 999;
+    animation: expandCard 0.2s ease forwards;
+
+    .expanded-image-wrapper {
+      img {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        display: block;
+      }
+    }
+
+    .expanded-content {
+      padding: 16px;
+
+      .expanded-meta-row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .match-score {
+        color: #46d369;
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .hd-badge {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #fff;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+      }
+
+      .expanded-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.08);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .action-btn:hover {
+        border-color: rgba(255, 255, 255, 0.36);
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .play-btn {
+        width: auto;
+        min-width: 110px;
+        padding: 0 14px;
+        border-radius: 999px;
+        background: white;
+        color: black;
+      }
+
+      .play-btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .circle-btn {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .more-btn {
+        margin-left: auto;
+      }
+
+      .dropdown-menu {
+        position: absolute;
+        right: 16px;
+        top: 76px;
+        background: rgba(12, 12, 18, 0.98);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
+        padding: 8px 0;
+        min-width: 160px;
+      }
+
+      .dropdown-item {
+        width: 100%;
+        background: transparent;
+        border: none;
+        color: white;
+        text-align: left;
+        padding: 10px 16px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.2s ease;
+      }
+
+      .dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .cancel-item {
+        color: #f25d5d;
+      }
+
+      .expanded-genres {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        font-size: 13px;
+        color: #d6d6d6;
+      }
+
+      .dot {
+        color: #777;
+      }
+    }
+  }
+
+  &:hover {
+    .show-card-expanded {
+      display: block;
+    }
+
+    .show-card-poster img {
+      transform: scale(1.04);
+    }
+  }
+ 
+}
+
+@keyframes expandCard {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width:748px) {
+  .show-card-wrapper {
+    width: 100%;
+    .show-card-expanded {
+      left: 0;
+      width: 100%;
+    }
+  }
+}

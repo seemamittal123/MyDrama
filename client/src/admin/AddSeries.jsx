@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UploadCloud } from "lucide-react";
 import axios from "axios";
 import { server_Url } from "../App";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import toast from "react-hot-toast";
+import { setNewShows } from "../redux/showSlice";
 
-// Mirrors the `genre` enum in the Show schema
 const GENRE_OPTIONS = [
   "Romance",
   "Action",
+  "Anime",
   "Comedy",
   "Drama",
   "Thriller",
@@ -19,24 +23,35 @@ const GENRE_OPTIONS = [
   "girllove",
 ];
 
-const COUNTRY_OPTIONS = ["korean", "chinese", "indian", "japanese"];
+const COUNTRY_OPTIONS = ["korean", "chinese", "US", "indian", "japanese", "thailand"];
 
 const STATUS_OPTIONS = ["ongoing", "completed", "upcomming"];
 
-const AddSeries = () => {
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    release_year: "",
-    country: "",
-    status: "ongoing",
-    trailer_url: "",
-  });
+const EMPTY_FORM = {
+  title: "",
+  description: "",
+  release_year: "",
+  country: "",
+  status: "ongoing",
+  trailer_url: "",
+  session: "",
+  cast: "",
+};
 
+const AddSeries = () => {
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const isEditMode = Boolean(id);
+  const navigate = useNavigate();
+  const { allShows } = useSelector((state) => state.show);
+
+  const [form, setForm] = useState(EMPTY_FORM);
   const [genre, setGenre] = useState([]);
+
   const [posterFile, setPosterFile] = useState(null);
-  const [posterPreview, setPosterPreview] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
+
+  const [posterPreview, setPosterPreview] = useState(null);
   const [bannerPreview, setBannerPreview] = useState(null);
 
   const [loading, setLoading] = useState(false);
@@ -70,42 +85,85 @@ const AddSeries = () => {
     formData.append("release_year", form.release_year);
     formData.append("country", form.country);
     formData.append("status", form.status);
+    formData.append("session", form.session);
     formData.append("trailer_url", form.trailer_url);
+    formData.append("cast", form.cast);
     genre.forEach((g) => formData.append("genre", g));
-    if (posterFile) formData.append("poster", posterFile);
-    if (bannerFile) formData.append("banner", bannerFile);
+
+    if (posterFile instanceof File) formData.append("poster", posterFile);
+    if (bannerFile instanceof File) formData.append("banner", bannerFile);
 
     try {
-      const { data } = await axios.post(`${server_Url}/api/shows/create`, formData, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      console.log("New show payload:", Object.fromEntries(formData));
-      console.log(data);
+      const { data } = isEditMode
+        ? await axios.post(`${server_Url}/api/shows/edit/${id}`, formData, {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        })
+        : await axios.post(`${server_Url}/api/shows/create`, formData, {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+      toast.success(isEditMode ? "Show updated" : "Show added");
+      dispatch(setNewShows(formData))
+      if (isEditMode) {
+        navigate("/admin");
+      } else {
+        setForm(EMPTY_FORM);
+        setGenre([]);
+        setPosterFile(null);
+        setBannerFile(null);
+        setPosterPreview(null);
+        setBannerPreview(null);
+      }
     } catch (error) {
       console.log(error.response);
-    }
-    finally {
-      setLoading(false)
+      toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!isEditMode) return;
+    const show = allShows.find((s) => s._id.toString() === id);
+    if (!show) return;
+
+    setForm({
+      title: show.title || "",
+      description: show.description || "",
+      release_year: show.release_year || "",
+      country: show.country || "",
+      status: show.status || "ongoing",
+      trailer_url: show.trailer_url || "",
+      session: show.session || "",
+      cast: show.cast || ""
+    });
+    setGenre(show.genre || []);
+    setPosterPreview(show.poster_url || null);
+    setBannerPreview(show.banner_url || null);
+    setPosterFile(null);
+    setBannerFile(null);
+  }, [id, isEditMode, allShows]);
 
   return (
     <div className="add-series">
       <div className="add-series__container">
         <div className="add-series__header">
-          <h1 className="add-series__title">Add New Series / Show</h1>
+          <h1 className="add-series__title">
+            {isEditMode ? "Edit Series / Show" : "Add New Series / Show"}
+          </h1>
           <p className="add-series__subtitle">
-            Fill in the details below to add a new title to the catalog.
+            {isEditMode
+              ? "Update the details below and save your changes."
+              : "Fill in the details below to add a new title to the catalog."}
           </p>
         </div>
 
         <div className="add-series__card">
           <form onSubmit={handleSubmit}>
-            {/* Basic Info */}
             <div className="form-section">
               <h3 className="form-section__title">Basic Information</h3>
-
               <div className="field">
                 <label className="field__label">Title</label>
                 <input
@@ -118,7 +176,31 @@ const AddSeries = () => {
                   required
                 />
               </div>
-
+              <div className="field">
+                <label className="field__label">Session</label>
+                <input
+                  type="number"
+                  name="session"
+                  value={form.session}
+                  onWheel={(e) => e.target.blur()}
+                  onChange={handleChange}
+                  placeholder="e.g 1"
+                  className="field__input"
+                  required
+                />
+              </div>
+              <div className="field">
+                <label className="field__label">Cast</label>
+                <input
+                  type="text"
+                  name="cast"
+                  value={form.cast}
+                  onChange={handleChange}
+                  placeholder="Enter cast (comma separated)"
+                  className="field__input"
+                  required
+                />
+              </div>
               <div className="field">
                 <label className="field__label">Description</label>
                 <textarea
@@ -137,6 +219,7 @@ const AddSeries = () => {
                     type="number"
                     name="release_year"
                     value={form.release_year}
+                    onWheel={(e) => e.preventDefault()}
                     onChange={handleChange}
                     placeholder="2026"
                     className="field__input"
@@ -174,7 +257,6 @@ const AddSeries = () => {
               </div>
             </div>
 
-            {/* Classification */}
             <div className="form-section">
               <h3 className="form-section__title">Classification</h3>
 
@@ -231,7 +313,7 @@ const AddSeries = () => {
 
               <div className="field">
                 <label className="field__label">
-                  Poster Image <span className="field__required">*</span>
+                  Poster Image {!isEditMode && <span className="field__required">*</span>}
                 </label>
                 <label className="upload-box upload-box--poster">
                   <input
@@ -255,7 +337,9 @@ const AddSeries = () => {
                     </div>
                   )}
                 </label>
-                <span className="field__hint">Required — maps to poster_url</span>
+                <span className="field__hint">
+                  {isEditMode ? "Leave empty to keep the current poster" : "Required — maps to poster_url"}
+                </span>
               </div>
 
               <div className="field">
@@ -282,15 +366,18 @@ const AddSeries = () => {
                     </div>
                   )}
                 </label>
+                {isEditMode && (
+                  <span className="field__hint">Leave empty to keep the current banner</span>
+                )}
               </div>
             </div>
 
             <div className="form-actions">
-              <button type="button" className="btn btn--ghost">
+              <button type="button" className="btn btn--ghost" onClick={() => navigate("/admin")}>
                 Cancel
               </button>
               <button type="submit" className="btn btn--primary" disabled={loading}>
-                {loading ? "Saving..." : "Add Series"}
+                {loading ? "Saving..." : isEditMode ? "Save Changes" : "Add Series"}
               </button>
             </div>
           </form>

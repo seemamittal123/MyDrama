@@ -8,6 +8,18 @@ const showSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    session: {
+      type: Number,
+      required: true,
+      default: 1,
+    },
+    cast: [
+      {
+        type: String,
+        required: true,
+        trim: true,
+      },
+    ],
     slug: {
       type: String,
       unique: true,
@@ -24,7 +36,7 @@ const showSchema = new mongoose.Schema(
     banner_url: {
       type: String,
     },
-    trailer_url:{
+    trailer_url: {
       type: String,
     },
     genre: [
@@ -33,6 +45,7 @@ const showSchema = new mongoose.Schema(
         enum: [
           "Romance",
           "Action",
+          "Anime",
           "Comedy",
           "Drama",
           "Thriller",
@@ -42,7 +55,7 @@ const showSchema = new mongoose.Schema(
           "Historical",
           "Melodrama",
           "boylove",
-          "girllove"
+          "girllove",
         ],
       },
     ],
@@ -51,11 +64,11 @@ const showSchema = new mongoose.Schema(
     },
     country: {
       type: String,
-      enum: ["korean", "chinese", "indian", "japanese"],
+      enum: ["korean", "chinese", "US", "indian", "japanese", "thailand"],
     },
     status: {
       type: String,
-      enum: ["ongoing", "completed","upcomming"],
+      enum: ["ongoing", "completed", "upcomming"],
       default: "ongoing",
     },
     total_episodes: {

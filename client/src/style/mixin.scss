@@ -9,3 +9,28 @@
   align-items: center;
   justify-content: space-between;
 }
+@mixin flex-left {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+}
+
+
+@mixin ellipsis {
+  width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@mixin ellipsis-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+@mixin ellipsis-8 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

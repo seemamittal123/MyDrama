@@ -31,8 +31,8 @@ export const createOrDeleteWatchList = async (req, res) => {
 export const getWatchList = async (req, res) => {
   try {
     const userId = req.userId;
-    const watchlist = await Watchlist.findOne({ user_id: userId });
-    return res.status(201).json({ success: true, watchlist });
+    const watchlist = await Watchlist.find({ user_id: userId }).populate("show_id");
+    return res.status(201).json({ success: true, watchlist});
   } catch (error) {
     return res
       .status(500)

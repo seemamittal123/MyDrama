@@ -1,0 +1,50 @@
+@use './mixin.scss' as *;
+
+.search-cover-box {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #0000002d;
+  backdrop-filter: blur(20px);
+  min-height: 100vh;
+  z-index: 9999;
+  padding: 20px;
+  @include flex-center;
+}
+
+.search-wrapper {
+  width: 100%;
+  max-width: 48rem;
+  height: 100%;
+  margin: 0 auto;
+  background-color: #181818;
+  color: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  position: absolute;
+  top: 10%;
+  padding: 20px;
+
+  .input-wrapper {
+    @include flex-center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid white;
+    border-radius: 10px;
+  }
+
+  .shows-wrapper {
+    padding: 20px 0;
+    @include flex-left;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width:748px) {
+    top: 0;
+    height: 100%;
+  }
+}

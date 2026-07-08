@@ -5,7 +5,6 @@ import { server_Url } from '../App';
 import { setTranding } from '../redux/showSlice';
 
 const useGetTrandingShows = () => {
-  const { user } = useSelector(state => state.user);
 
   const dispatch = useDispatch();
 
@@ -18,10 +17,8 @@ const useGetTrandingShows = () => {
         console.log(error.response);
       }
     }
-    if (user?._id) {
       fetchUserWatchList();
-    }
-  }, [dispatch, user?._id])
+  }, [dispatch])
 }
 
 export default useGetTrandingShows

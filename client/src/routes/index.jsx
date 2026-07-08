@@ -1,23 +1,23 @@
 import { createBrowserRouter } from "react-router-dom";
 import App from "../App";
 import ForgotPassword from "../pages/ForgotPassword";
-import Home from "../pages/Home";
+import Home from "../components/Home";
 import AddSeries from "../admin/AddSeries";
 import AddEpisode from "../admin/AddEpisode";
-import Show from "../pages/Show";
 import AuthPage from "../pages/AuthPage";
 import AdminDashboard from "../admin/AdminDashboard";
 import ShowEpisodes from "../admin/ShowEpisodes";
 import AdminRoute from "./AdminRoute";
+import Explore from "../components/Explore";
+import Layout from "../pages/Layout";
+import Watchlist from "../components/Watchlist";
+import History from "../components/History";
+import EpisodePlayerPage from "../components/EpisodePlayPage";
 
 const router = createBrowserRouter([{
   path: '/',
   element: <App />,
   children: [
-    {
-      path: "",
-      element: <Home />
-    },
     {
       path: "auth",
       element: <AuthPage />
@@ -35,7 +35,7 @@ const router = createBrowserRouter([{
           element: <AdminDashboard />,
         },
         {
-          path: "shows/:id/episodes",
+          path: "shows/:showId/episodes",
           element: <ShowEpisodes />,
         },
         {
@@ -43,7 +43,7 @@ const router = createBrowserRouter([{
           element: <AddSeries />,
         },
         {
-          path: "series/add/:id", //
+          path: "series/edit/:id", //
           element: <AddSeries />,
         },
         {
@@ -51,16 +51,37 @@ const router = createBrowserRouter([{
           element: <AddEpisode />,
         },
         {
-          path: "episodes/add/:id",
+          path: "episodes/edit/:epId",
           element: <AddEpisode />,
         },
       ],
     },
     {
-      path: "Drama/:showname",
-      element: <Show />
+      path: '',
+      element: <Layout />,
+      children: [
+        {
+          path: "",
+          element: <Home />
+        },
+        {
+          path: "explore",
+          element: <Explore />
+        },
+        {
+          path: "watch-list",
+          element: <Watchlist />
+        },
+        {
+          path: "continue-watching",
+          element: <History />
+        },
+      ]
     },
-
+    {
+      path:"Drama/:slug/episode/:id",
+      element:<EpisodePlayerPage/>
+    }
   ]
 }])
 

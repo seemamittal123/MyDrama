@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setUser } from "../redux/userSlice";
+import logo from '../assets/logo.svg';
 
 const AuthPage = () => {
   const [mode, setMode] = useState("login");
@@ -55,7 +56,9 @@ const AuthPage = () => {
 
       {/* Top bar */}
       <header className="auth-header">
-        <h1 className="auth-header__logo">STREAMIX</h1>
+        <h1 className="auth-header__logo">
+          <img src={logo} alt="" />
+        </h1>
         {isLogin ? (
           <button
             onClick={() => setMode("register")}

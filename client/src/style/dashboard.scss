@@ -1,5 +1,12 @@
 @use './header.scss';
-@use './topslider.scss';
-.inner-section{
-  margin-top: 65px;
+@use './topSlider.scss';
+@use './slider.scss';
+@use './showDetails.scss';
+@use './explore.scss';
+@use './search.scss';
+
+.inner-section {
+  margin-top: 60px;
+  background-color: black;
+  min-height: 100vh;
 }

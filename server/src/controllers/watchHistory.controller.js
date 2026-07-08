@@ -42,6 +42,20 @@ export const updateProgress = async (req, res) => {
   }
 };
 
+export const getProgressByEpisode = async (req, res) => {
+  try {
+    const user_id = req.userId;
+    const { episode_id } = req.params;
+
+    const history = await WatchHistory.findOne({ user_id, episode_id });
+
+    return res.status(200).json({ success: true, history: history || null });
+  } catch (error) {
+    console.error("Get progress error:", error.message);
+    return res.status(500).json({ message: `Error: ${error.message}` });
+  }
+};
+
 export const getContinueWatching = async (req, res) => {
   try {
     const user_id = req.userId;
@@ -79,7 +93,6 @@ export const getContinueWatching = async (req, res) => {
   }
 };
 
-// ---------------- 4. GET FULL HISTORY ----------------
 export const getFullHistory = async (req, res) => {
   try {
     const user_id = req.userId;

@@ -2,9 +2,10 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   user: null,
-  loading: false,
+  loading: true,
   watchList: [],
   history: [],
+  continueWatch: [],
 };
 const userSlice = createSlice({
   name: "user",
@@ -19,6 +20,7 @@ const userSlice = createSlice({
     },
     addWatchList: (state, action) => {
       state.watchList.unshift(action.payload);
+      state.loading = false;
     },
     removeWatchList: (state, action) => {
       const showId = action.payload;
@@ -28,6 +30,10 @@ const userSlice = createSlice({
     },
     setHistory: (state, action) => {
       state.history = action.payload;
+      state.loading=false;
+    },
+    setContinueWatch: (state, action) => {
+      state.continueWatch = action.payload;
     },
   },
 });
@@ -36,6 +42,7 @@ export const {
   setUser,
   setWatchList,
   setHistory,
+  setContinueWatch,
   addWatchList,
   removeWatchList,
 } = userSlice.actions;

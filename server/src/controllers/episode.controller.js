@@ -2,7 +2,6 @@ import Episode from "../models/episode.js";
 import Show from "../models/show.js";
 import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
 
-// ---------------- CREATE EPISODE ----------------
 export const createEpisode = async (req, res) => {
   try {
     const {
@@ -20,7 +19,19 @@ export const createEpisode = async (req, res) => {
     if (!episode_number) {
       return res.status(400).json({ message: "episode_number is required" });
     }
-    if (!video_url) {
+
+    let videoUrlValue = video_url;
+    if (req.files && req.files.video) {
+      const videoFile = req.files.video[0];
+      videoUrlValue = await uploadOnCloudinary(
+        videoFile.buffer,
+        videoFile.mimetype,
+        "episodes/videos",
+        "video"
+      );
+    }
+
+    if (!videoUrlValue) {
       return res.status(400).json({ message: "video_url is required" });
     }
 
@@ -29,10 +40,9 @@ export const createEpisode = async (req, res) => {
       return res.status(404).json({ message: "Show not found" });
     }
 
-    // Thumbnail upload (optional)
     let thumbnailUrl = "";
-    if (req.files && req.files.thumbnailUrl) {
-      const thumbFile = req.files.thumbnailUrl[0];
+    if (req.files && req.files.thumbnail) {
+      const thumbFile = req.files.thumbnail[0];
       thumbnailUrl = await uploadOnCloudinary(
         thumbFile.buffer,
         thumbFile.mimetype,
@@ -40,10 +50,9 @@ export const createEpisode = async (req, res) => {
       );
     }
 
-    // Subtitle upload (optional)
     let subtitleUrl = "";
-    if (req.files && req.files.subtitleFile) {
-      const subFile = req.files.subtitleFile[0];
+    if (req.files && req.files.subtitle) {
+      const subFile = req.files.subtitle[0];
       subtitleUrl = await uploadOnCloudinary(
         subFile.buffer,
         subFile.mimetype,
@@ -55,7 +64,7 @@ export const createEpisode = async (req, res) => {
       show_id,
       episode_number,
       title,
-      video_url,
+      video_url: videoUrlValue,
       thumbnail_url: thumbnailUrl,
       subtitle_url: subtitleUrl,
       duration,
@@ -162,7 +171,7 @@ export const getEpisode = async (req, res) => {
     const episode = await Episode.findById(id);
 
     await Show.findByIdAndUpdate(episode.show_id, { $inc: { views: 1 } });
-    
+
     return res.status(201).json({ success: true, episode });
   } catch (error) {
     return res

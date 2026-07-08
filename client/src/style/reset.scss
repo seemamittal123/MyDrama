@@ -134,4 +134,24 @@ body {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+  color: white;
+}
+
+body {
+  background-color: black;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

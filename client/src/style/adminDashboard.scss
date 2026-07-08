@@ -167,88 +167,141 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
   gap: 1.5rem;
-}
 
-.series-card {
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0.625rem;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease;
-  text-align: left;
-
-  &:hover {
-    transform: translateY(-3px);
-    border-color: rgba(220, 38, 38, 0.5);
-
-    .series-card__poster img {
-      transform: scale(1.04);
-    }
+  .next-btn {
+    height: 45px;
+    border-radius: 10px;
+    background: #16a34a;
+    color: white;
   }
 
-  &__poster {
+  .series-card {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.625rem;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    text-align: left;
     position: relative;
-    aspect-ratio: 2 / 3;
-    overflow: hidden;
-    background-color: #171717;
 
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
+    &__edit-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 2;
+      background: rgba(0, 0, 0, 0.6);
+      border: none;
+      border-radius: 6px;
+      padding: 6px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.85);
+      }
+    }
+     &__bin-btn {
+      position: absolute;
+      top: 8px;
+      right: 40px;
+      z-index: 2;
+      background: rgba(0, 0, 0, 0.6);
+      border: none;
+      border-radius: 6px;
+      padding: 6px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.85);
+      }
+    }
+
+    &:hover {
+      transform: translateY(-3px);
+      border-color: rgba(220, 38, 38, 0.5);
+
+      .series-card__poster img {
+        transform: scale(1.04);
+      }
+    }
+
+    &__poster {
+      position: relative;
+      aspect-ratio: 2 / 3;
+      overflow: hidden;
+      background-color: #171717;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+    }
+
+    &__status {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: #fff;
+
+      &--ongoing {
+        background-color: #16a34a;
+      }
+
+      &--completed {
+        background-color: #2563eb;
+      }
+
+      &--upcomming {
+        background-color: #d97706;
+      }
+    }
+
+    &__body {
+      padding: 0.75rem 0.85rem 0.9rem;
+      color: white;
+
+    }
+
+    &__title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 0.3rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    &__meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #9ca3af;
     }
   }
 
-  &__status {
-    position: absolute;
-    top: 0.5rem;
-    left: 0.5rem;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: #fff;
-
-    &--ongoing {
-      background-color: #16a34a;
-    }
-
-    &--completed {
-      background-color: #2563eb;
-    }
-
-    &--upcomming {
-      background-color: #d97706;
-    }
-  }
-
-  &__body {
-    padding: 0.75rem 0.85rem 0.9rem;
-  }
-
-  &__title {
-    font-size: 0.9rem;
-    font-weight: 700;
-    line-height: 1.3;
-    margin-bottom: 0.3rem;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  &__meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: #9ca3af;
-  }
 }
+
 
 .empty-state {
   text-align: center;

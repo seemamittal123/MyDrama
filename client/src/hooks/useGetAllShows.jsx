@@ -5,25 +5,20 @@ import { server_Url } from '../App';
 import { setAllShows } from '../redux/showSlice';
 
 const useGetAllShows = () => {
-  const { user } = useSelector(state => state.user);
 
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchUserWatchList = async () => {
+    const fetchAllShows = async () => {
       try {
-        const { data } = await axios.get(`${server_Url}/api/shows/all/shows`, { withCredentials: true });
+        const { data } = await axios.get(`${server_Url}/api/shows/all/shows?page=1&limit=20`, { withCredentials: true });
         dispatch(setAllShows(data.shows));
-        console.log(data)
-
       } catch (error) {
         console.log(error.response);
       }
     }
-    if (user?._id) {
-      fetchUserWatchList();
-    }
-  }, [dispatch, user?._id])
+    fetchAllShows();
+  }, [dispatch])
 }
 
 export default useGetAllShows

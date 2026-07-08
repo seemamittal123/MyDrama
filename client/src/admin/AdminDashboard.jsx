@@ -1,54 +1,22 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Search, Plus, Eye, Film } from "lucide-react";
-
-// Replace with real data fetched from your API (GET /api/shows)
-const DUMMY_SHOWS = [
-  {
-    _id: "665f1a2b3c4d5e6f7a8b9c0d",
-    title: "Business Proposal",
-    poster_url: "https://image.tmdb.org/t/p/w300/9dCleZTAAxxNoCbmxa1zY5RAeYb.jpg",
-    status: "completed",
-    genre: ["Romance", "Comedy"],
-    total_episodes: 12,
-    views: 154302,
-  },
-  {
-    _id: "665f1a2b3c4d5e6f7a8b9c0e",
-    title: "Vincenzo",
-    poster_url: "https://image.tmdb.org/t/p/w300/2S1cH8mUuXeeCJTFvR8VwOMTdcU.jpg",
-    status: "completed",
-    genre: ["Action", "Drama"],
-    total_episodes: 20,
-    views: 98211,
-  },
-  {
-    _id: "665f1a2b3c4d5e6f7a8b9c0f",
-    title: "Crash Landing on You",
-    poster_url: "https://image.tmdb.org/t/p/w300/uK5wYaJoZmzwlaeIeGb9GO2Duy4.jpg",
-    status: "ongoing",
-    genre: ["Romance", "Drama"],
-    total_episodes: 8,
-    views: 210044,
-  },
-  {
-    _id: "665f1a2b3c4d5e6f7a8b9c10",
-    title: "The Untamed",
-    poster_url: "https://image.tmdb.org/t/p/w300/40dCJvzsF1yhSXWXQnXFXgOjRnp.jpg",
-    status: "upcomming",
-    genre: ["Fantasy", "boylove"],
-    total_episodes: 0,
-    views: 0,
-  },
-];
+import { Search, Plus, Eye, Film, Pencil } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { server_Url } from "../App";
+import { ImBin } from "react-icons/im";
+import toast from "react-hot-toast";
 
 const STATUS_FILTERS = ["all", "ongoing", "completed", "upcomming"];
 
 const AdminDashboard = () => {
+
   const navigate = useNavigate();
-  const [shows] = useState(DUMMY_SHOWS);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [shows, setShows] = useState([])
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const stats = useMemo(() => {
     const totalEpisodes = shows.reduce((sum, s) => sum + (s.total_episodes || 0), 0);
@@ -59,7 +27,7 @@ const AdminDashboard = () => {
 
   const filteredShows = useMemo(() => {
     return shows.filter((show) => {
-      const matchesSearch = show.title.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch = show.title?.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = statusFilter === "all" || show.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -68,6 +36,42 @@ const AdminDashboard = () => {
   const goToEpisodes = (showId) => {
     navigate(`/admin/shows/${showId}/episodes`);
   };
+
+  const goToEdit = (e, showId) => {
+    e.stopPropagation();
+    navigate(`/admin/series/edit/${showId}`);
+  };
+
+  const handleDelete = async (e, showId) => {
+    e.stopPropagation();
+    try {
+      const { data } = await axios.delete(`${server_Url}/api/shows/show/delete/${showId}`, { withCredentials: true });
+      if (data.success)
+        toast.success(data.message);
+    } catch (error) {
+      console.log(error.response);
+    }
+  }
+
+
+  const fetchShows = async () => {
+    try {
+      const params = new URLSearchParams({
+        page: page,
+        limit: 20,
+      });
+      const { data } = await axios.get(`${server_Url}/api/shows/all/shows?${params}`, { withCredentials: true });
+      setPage(data.pagination.page)
+      setTotalPages(data.pagination.totalPages);
+      setShows(data.shows);
+    } catch (error) {
+      console.log(error?.response);
+    }
+  }
+
+  useEffect(() => {
+    fetchShows();
+  }, [page])
 
   return (
     <div className="admin-dashboard">
@@ -137,11 +141,28 @@ const AdminDashboard = () => {
       ) : (
         <div className="series-grid">
           {filteredShows.map((show) => (
-            <button
+            <div
               key={show._id}
               className="series-card"
               onClick={() => goToEpisodes(show._id)}
+              role="button"
+              tabIndex={0}
             >
+              <button
+                className="series-card__edit-btn"
+                title="Edit show"
+                onClick={(e) => goToEdit(e, show._id)}
+              >
+                <Pencil size={14} />
+              </button>
+              <button
+                className="series-card__bin-btn"
+                title="Edit show"
+                onClick={(e) => handleDelete(e, show._id)}
+              >
+                <ImBin size={14} />
+              </button>
+
               <div className="series-card__poster">
                 <img src={show.poster_url} alt={show.title} />
                 <span className={`series-card__status series-card__status--${show.status}`}>
@@ -161,11 +182,16 @@ const AdminDashboard = () => {
                   </span>
                 </div>
               </div>
-            </button>
+            </div>
           ))}
+          {filteredShows.length == 20 &&
+            <button onClick={() => setPage(page + 1)} className="next-btn">
+              Next
+            </button>}
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 

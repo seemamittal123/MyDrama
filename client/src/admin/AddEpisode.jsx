@@ -1,15 +1,21 @@
-import { useState } from "react";
-import { UploadCloud, Film, Captions } from "lucide-react";
-
-const DUMMY_SHOWS = [
-  { id: "665f1a2b3c4d5e6f7a8b9c0d", title: "Business Proposal" },
-  { id: "665f1a2b3c4d5e6f7a8b9c0e", title: "Vincenzo" },
-  { id: "665f1a2b3c4d5e6f7a8b9c0f", title: "Crash Landing on You" },
-];
+import { useEffect, useState } from "react";
+import { UploadCloud, Film, Captions, Loader } from "lucide-react";
+import { useParams, useSearchParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { server_Url } from "../App";
+import toast from "react-hot-toast";
+import loader from '../assets/loader.svg';
 
 const AddEpisode = () => {
+  const { epId } = useParams(); 
+  const isEditMode = Boolean(epId);
+
+  const [searchParams] = useSearchParams();
+  const showId = searchParams.get("show_id");
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
-    show_id: "",
+    show_id: showId || "",
     episode_number: "",
     title: "",
     release_date: "",
@@ -17,16 +23,18 @@ const AddEpisode = () => {
     durationSeconds: "",
   });
 
-  const [videoSource, setVideoSource] = useState("upload"); // "upload" | "url"
+  const [videoSource, setVideoSource] = useState("upload");
   const [videoFile, setVideoFile] = useState(null);
   const [videoUrl, setVideoUrl] = useState("");
 
   const [subtitleFile, setSubtitleFile] = useState(null);
+  const [existingSubtitleUrl, setExistingSubtitleUrl] = useState("");
 
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
 
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(isEditMode);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -51,11 +59,57 @@ const AddEpisode = () => {
     reader.readAsDataURL(file);
   };
 
+  useEffect(() => {
+    if (!isEditMode) return;
+
+    const fetchEpisodeData = async () => {
+      try {
+        setFetching(true);
+        const { data } = await axios.get(
+          `${server_Url}/api/episodes/episode/${epId}`,
+          { withCredentials: true }
+        );
+
+        const ep = data.episode;
+        const minutes = Math.floor((ep.duration || 0) / 60);
+        const seconds = (ep.duration || 0) % 60;
+
+        setForm({
+          show_id: ep.show_id,
+          episode_number: ep.episode_number || "",
+          title: ep.title || "",
+          release_date: ep.release_date
+            ? ep.release_date.slice(0, 10) 
+            : "",
+          durationMinutes: minutes || "",
+          durationSeconds: seconds || "",
+        });
+
+        setVideoUrl(ep.video_url || "");
+        setVideoSource("url"); 
+        setThumbnailPreview(ep.thumbnail_url || null);
+        setExistingSubtitleUrl(ep.subtitle_url || "");
+      } catch (error) {
+        console.log("Fetch episode error:", error.response);
+        toast.error("Failed to load episode data");
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchEpisodeData();
+  }, [epId, isEditMode]);
+
+  useEffect(() => {
+    if (!isEditMode && showId) {
+      setForm((prev) => ({ ...prev, show_id: showId }));
+    }
+  }, [showId, isEditMode]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // duration is stored in seconds on the schema, so convert mm:ss -> total seconds
     const minutes = parseInt(form.durationMinutes || "0", 10);
     const seconds = parseInt(form.durationSeconds || "0", 10);
     const totalDurationSeconds = minutes * 60 + seconds;
@@ -67,33 +121,61 @@ const AddEpisode = () => {
     formData.append("release_date", form.release_date);
     formData.append("duration", totalDurationSeconds);
 
-    // video_url is required by the schema — either the uploaded file or the pasted URL
     if (videoSource === "upload" && videoFile) {
       formData.append("video", videoFile);
-    } else if (videoSource === "url") {
+    } else if (videoSource === "url" && videoUrl) {
       formData.append("video_url", videoUrl);
     }
 
     if (subtitleFile) formData.append("subtitle", subtitleFile);
     if (thumbnailFile) formData.append("thumbnail", thumbnailFile);
 
-    // TODO: wire up to backend, e.g.
-    // await axios.post(`${server_Url}/api/episodes`, formData, {
-    //   withCredentials: true,
-    //   headers: { "Content-Type": "multipart/form-data" },
-    // });
-    console.log("New episode payload:", Object.fromEntries(formData));
+    try {
+      const endpoint = isEditMode
+        ? `${server_Url}/api/episodes/edit/${epId}`
+        : `${server_Url}/api/episodes/create`;
 
-    setTimeout(() => setLoading(false), 800);
+      const { data } = await axios.post(endpoint, formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (data.success) {
+        toast.success(data.message);
+        if (!isEditMode) {
+          // Naya episode banne ke baad form reset ya show page pe wapas bhej do
+          navigate(`/show/${form.show_id}`);
+        }
+      }
+    } catch (error) {
+      console.log(error.response);
+      toast.error(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (fetching) {
+    return (
+      <div className="add-episode spinner">
+        <p>
+          <img src={loader} alt="" />
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="add-episode">
       <div className="add-episode__container">
         <div className="add-episode__header">
-          <h1 className="add-episode__title">Add New Episode</h1>
+          <h1 className="add-episode__title">
+            {isEditMode ? "Edit Episode" : "Add New Episode"}
+          </h1>
           <p className="add-episode__subtitle">
-            Attach a new episode to an existing show.
+            {isEditMode
+              ? "Update this episode's details."
+              : "Attach a new episode to an existing show."}
           </p>
         </div>
 
@@ -102,27 +184,6 @@ const AddEpisode = () => {
             {/* Show & Position */}
             <div className="form-section">
               <h3 className="form-section__title">Show Details</h3>
-
-              <div className="field">
-                <label className="field__label">
-                  Show <span className="field__required">*</span>
-                </label>
-                <select
-                  name="show_id"
-                  value={form.show_id}
-                  onChange={handleChange}
-                  className="field__select"
-                  required
-                >
-                  <option value="">Select a show</option>
-                  {DUMMY_SHOWS.map((show) => (
-                    <option key={show.id} value={show.id}>
-                      {show.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               <div className="field">
                 <label className="field__label">
                   Episode Number <span className="field__required">*</span>
@@ -132,6 +193,7 @@ const AddEpisode = () => {
                   name="episode_number"
                   min="1"
                   value={form.episode_number}
+                  onWheel={(e) => e.target.blur()}
                   onChange={handleChange}
                   placeholder="1"
                   className="field__input"
@@ -168,6 +230,7 @@ const AddEpisode = () => {
                       name="durationMinutes"
                       min="0"
                       value={form.durationMinutes}
+                      onWheel={(e) => e.target.blur()}
                       onChange={handleChange}
                       placeholder="45"
                       className="field__input"
@@ -179,6 +242,7 @@ const AddEpisode = () => {
                       min="0"
                       max="59"
                       value={form.durationSeconds}
+                      onWheel={(e) => e.target.blur()}
                       onChange={handleChange}
                       placeholder="00"
                       className="field__input"
@@ -207,7 +271,7 @@ const AddEpisode = () => {
 
               <div className="field">
                 <label className="field__label">
-                  Video <span className="field__required">*</span>
+                  Video {!isEditMode && <span className="field__required">*</span>}
                 </label>
                 <div className="source-toggle">
                   <button
@@ -246,7 +310,11 @@ const AddEpisode = () => {
                     ) : (
                       <div className="upload-box__placeholder">
                         <UploadCloud size={22} />
-                        <span>Upload episode video file</span>
+                        <span>
+                          {isEditMode
+                            ? "Upload a new video to replace the current one"
+                            : "Upload episode video file"}
+                        </span>
                       </div>
                     )}
                   </label>
@@ -257,7 +325,7 @@ const AddEpisode = () => {
                     onChange={(e) => setVideoUrl(e.target.value)}
                     placeholder="https://cdn.example.com/episode.mp4"
                     className="field__input"
-                    required
+                    required={!isEditMode}
                   />
                 )}
               </div>
@@ -275,6 +343,11 @@ const AddEpisode = () => {
                     <div className="upload-box__filename">
                       <Captions size={18} style={{ marginBottom: "0.4rem" }} />
                       <div>{subtitleFile.name}</div>
+                    </div>
+                  ) : existingSubtitleUrl ? (
+                    <div className="upload-box__filename">
+                      <Captions size={18} style={{ marginBottom: "0.4rem" }} />
+                      <div>Current subtitle attached</div>
                     </div>
                   ) : (
                     <div className="upload-box__placeholder">
@@ -311,11 +384,19 @@ const AddEpisode = () => {
             </div>
 
             <div className="form-actions">
-              <button type="button" className="btn btn--ghost">
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={() => navigate(-1)}
+              >
                 Cancel
               </button>
               <button type="submit" className="btn btn--primary" disabled={loading}>
-                {loading ? "Saving..." : "Add Episode"}
+                {loading
+                  ? "Saving..."
+                  : isEditMode
+                  ? "Update Episode"
+                  : "Add Episode"}
               </button>
             </div>
           </form>
