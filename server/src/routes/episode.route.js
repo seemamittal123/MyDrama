@@ -33,6 +33,6 @@ episode.post(
 );
 episode.delete("/delete/:id", isAuth, deleteEpisode);
 episode.get("/show/:show_id/all/episodes", getEpisodesByShow);
-episode.get("/episode/:id",isAuth, getEpisode);
+episode.get("/episode/:id/:userId", getEpisode);
 
 export default episode;

@@ -6,8 +6,10 @@ import { server_Url } from "../App";
 import loader from '../assets/loader.svg';
 import { ChevronRight } from 'lucide-react';
 import toast from "react-hot-toast";
+import { useSelector } from "react-redux";
 
 export default function EpisodePlayerPage() {
+  const {user} = useSelector(state=>state.user);
   const { slug, id } = useParams();
   const navigate = useNavigate();
   const [episode, setEpisode] = useState(null);
@@ -20,7 +22,7 @@ export default function EpisodePlayerPage() {
     const fetchEpisodeData = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(`${server_Url}/api/episodes/episode/${id}`, { withCredentials: true });
+        const { data } = await axios.get(`${server_Url}/api/episodes/episode/${id}/${user._id}`, { withCredentials: true });
         setEpisode(data.episode);
 
         // Fetch all episodes of this show
@@ -46,7 +48,6 @@ export default function EpisodePlayerPage() {
 
       } catch (error) {
         console.log("Fetch episode error:", error.response);
-        toast.error("You need to create account");
       } finally {
         setLoading(false);
       }
