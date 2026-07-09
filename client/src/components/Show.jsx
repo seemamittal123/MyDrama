@@ -8,8 +8,10 @@ import toast from "react-hot-toast";
 import loader from '../assets/loader.svg';
 import VideoPlayer from "./VideoPlayer";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Show = ({ show, episodes, onClose, handleShow }) => {
+  const { user } = useSelector(state => state.user);
   const [episodesOpen, setEpisodesOpen] = useState(true);
   const [related, setRelated] = useState([]);
   const [liked, setLiked] = useState(false)
@@ -18,17 +20,22 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
 
 
   const goToResume = async () => {
-    try {
-      const { data } = await axios.get(
-        `${server_Url}/api/users/watch-history/resume/${show._id}`,
-        { withCredentials: true }
-      );
+    if (user?.id) {
+      try {
+        const { data } = await axios.get(
+          `${server_Url}/api/users/watch-history/resume/${show._id}`,
+          { withCredentials: true }
+        );
 
-      if (data.success) {
-        navigate(`/Drama/${show.slug}/episode/${data.episode_id}`);
+        if (data.success) {
+          navigate(`/Drama/${show.slug}/episode/${data.episode_id}`);
+        }
+      } catch (error) {
+        console.log(error?.response);
       }
-    } catch (error) {
-      console.log(error?.response);
+    }
+    else {
+      toast.error("You need to sign in")
     }
   };
   const formatDuration = (seconds) => {
@@ -55,25 +62,36 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
   }
   const goToAddWatchList = async (e, showId) => {
     e.stopPropagation();
-    try {
-      const { data } = await axios.post(`${server_Url}/api/users/create/watchlist`, { show_id: showId }, { withCredentials: true })
-      if (data.success)
-        toast.success(data.message);
-    } catch (error) {
-      console.log(error?.response);
+    if (user?._id) {
+
+      try {
+        const { data } = await axios.post(`${server_Url}/api/users/create/watchlist`, { show_id: showId }, { withCredentials: true })
+        if (data.success)
+          toast.success(data.message);
+      } catch (error) {
+        console.log(error?.response);
+      }
+    }
+    else {
+      toast.error("You need to sign in")
     }
   }
 
   const goToLike = async (e, showId) => {
     e.stopPropagation();
-    try {
-      const { data } = await axios.post(`${server_Url}/api/shows/like-dislike`, { show_id: showId }, { withCredentials: true })
-      if (data.success) {
-        toast.success(data.message);
-        setLiked(data.liked)
+    if (user?._id) {
+      try {
+        const { data } = await axios.post(`${server_Url}/api/shows/like-dislike`, { show_id: showId }, { withCredentials: true })
+        if (data.success) {
+          toast.success(data.message);
+          setLiked(data.liked)
+        }
+      } catch (error) {
+        console.log(error?.response);
       }
-    } catch (error) {
-      console.log(error?.response);
+    }
+    else {
+      toast.error("You need to sign in")
     }
   }
 

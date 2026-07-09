@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
 export default function EpisodePlayerPage() {
-  const {user} = useSelector(state=>state.user);
+  const { user } = useSelector(state => state.user);
   const { slug, id } = useParams();
   const navigate = useNavigate();
   const [episode, setEpisode] = useState(null);
@@ -22,9 +22,8 @@ export default function EpisodePlayerPage() {
     const fetchEpisodeData = async () => {
       try {
         setLoading(true);
-        const { data } = await axios.get(`${server_Url}/api/episodes/episode/${id}/${user._id}`, { withCredentials: true });
+        const { data } = await axios.get(`${server_Url}/api/episodes/episode/${id}`, { withCredentials: true });
         setEpisode(data.episode);
-
         // Fetch all episodes of this show
         const { data: episodesData } = await axios.get(
           `${server_Url}/api/episodes/show/${data.episode.show_id}/all/episodes`
@@ -52,7 +51,11 @@ export default function EpisodePlayerPage() {
         setLoading(false);
       }
     };
-    fetchEpisodeData();
+    if (user?._id)
+      fetchEpisodeData();
+    else {
+      toast.error("You need to sign in")
+    }
   }, [id]);
 
   const handleProgress = async ({ watched_duration, total_duration }) => {

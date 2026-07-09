@@ -169,10 +169,12 @@ export const getEpisodesByShow = async (req, res) => {
 
 export const getEpisode = async (req, res) => {
   try {
-    const { userId, id } = req.params;
+    const { id } = req.params;
+    const userId =req.userId;
     const episode = await Episode.findById(id);
-    const show = await Show.findById(episode.show_id);
 
+    const show = await Show.findById(episode.show_id);
+    
     if (!show.viewedBy.includes(userId)) {
       show.views += 1;
       show.viewedBy.push(userId);
