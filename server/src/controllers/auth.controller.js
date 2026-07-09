@@ -21,11 +21,12 @@ export const signUp = async (req, res) => {
 
     const token = await getToken(user?._id);
     res.cookie("token", token, {
-      secure: false,
-      sameSite: "strict",
+    secure: true,
+      sameSite: "none",
       httpOnly: true,
       maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
     });
+   
 
     return res.status(200).json({ message: "Successful", user });
   } catch (error) {
@@ -50,8 +51,8 @@ export const signIn = async (req, res) => {
 
     const token = await getToken(user._id);
     res.cookie("token", token, {
-      secure: false,
-      sameSite: "strict",
+      secure: true,
+      sameSite: "none",
       httpOnly: true,
       maxAge: 365 * 24 * 60 * 60 * 1000,
     });
