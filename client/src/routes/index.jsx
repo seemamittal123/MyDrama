@@ -35,7 +35,7 @@ const router = createBrowserRouter([{
           element: <AdminDashboard />,
         },
         {
-          path: "shows/:showId/episodes",
+          path: "shows/:showId",
           element: <ShowEpisodes />,
         },
         {
@@ -73,7 +73,7 @@ const router = createBrowserRouter([{
           element: <Watchlist />
         },
         {
-          path: "continue-watching",
+          path: "history",
           element: <History />
         },
       ]

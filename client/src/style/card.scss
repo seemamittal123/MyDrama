@@ -197,7 +197,21 @@
     }
   }
 
-  &:hover {
+  // // Desktop — hover se khule (touch devices exclude, taaki mobile pe ghost-hover na ho)
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      .show-card-expanded {
+        display: block;
+      }
+
+      .show-card-poster img {
+        transform: scale(1.04);
+      }
+    }
+  }
+
+  // Mobile/touch — JS se lagi class ke through khule
+  &.is-active {
     .show-card-expanded {
       display: block;
     }
@@ -206,7 +220,6 @@
       transform: scale(1.04);
     }
   }
- 
 }
 
 @keyframes expandCard {
@@ -214,19 +227,26 @@
     transform: scale(0.9);
     opacity: 0;
   }
-
   to {
     transform: scale(1);
     opacity: 1;
   }
 }
 
-@media (max-width:748px) {
+@media (max-width: 748px) {
   .show-card-wrapper {
     width: 100%;
+
     .show-card-expanded {
+      position: fixed; 
+      top: auto;
+      bottom: 0;
       left: 0;
+      right: 0;
       width: 100%;
+      border-radius: 18px 18px 0 0;
+      max-height: 80vh;
+      overflow-y: auto;
     }
   }
 }

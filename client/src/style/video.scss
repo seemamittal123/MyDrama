@@ -1,109 +1,426 @@
-$color-bg: #000;
-$color-accent: #e50914; // red accent
-$color-text: #fff;
-$color-text-muted: #b3b3b3;
-$overlay-gradient: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-
 .video-player {
   position: relative;
   width: 100%;
-  background-color: $color-bg;
-
-  .cross {
-    position: absolute;
-    top: 25px;
-    left: 25px;
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #ffffff37;
-    border-radius: 100%;
-    backdrop-filter: blur(20px);
-    cursor: pointer;
-  }
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  border-radius: 8px;
 
   video {
     width: 100%;
+    height: 100%;
     max-height: 100vh;
-    aspect-ratio: 16 / 9;
-    display: block;
+    object-fit: contain;
+    background: #000;
     cursor: pointer;
   }
 
+  // ---- Close/Cross button ----
+ // ---- Close/Cross button ----
+  &__cross {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 20;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+
+    // hidden by default
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.75);
+    }
+  }
+
+  // ---- Center controls: fully hidden when not hovering ----
+  &__center-controls {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    z-index: 15;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+  }
+
+  // ---- Bottom controls: fully hidden when not hovering ----
   &__controls {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    padding: 40px 16px 12px;
-    background: $overlay-gradient;
+    padding: 10px 20px 16px;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0) 100%
+    );
+
     opacity: 0;
-    transition: opacity 0.25s ease;
+    visibility: hidden;
     pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, visibility 0.25s ease, transform 0.25s ease;
+    z-index: 10;
 
     &--visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+  }
+
+  // ---- Seek bar (color fill via inline gradient) ----
+  &__seek {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 3px;
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: height 0.15s ease;
+    // background is now set inline via JSX (dynamic progress color)
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 0px;
+      height: 0px;
+      border-radius: 50%;
+      background: #e50914;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      opacity: 0;
+    }
+
+    &::-moz-range-thumb {
+      width: 0px;
+      height: 0px;
+      border-radius: 50%;
+      background: #e50914;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      opacity: 0;
+      border: none;
+    }
+
+    &:hover,
+    &:active,
+    &:focus {
+      height: 6px;
+
+      &::-webkit-slider-thumb {
+        width: 13px;
+        height: 13px;
+        opacity: 1;
+      }
+
+      &::-moz-range-thumb {
+        width: 13px;
+        height: 13px;
+        opacity: 1;
+      }
+    }
+  }
+
+  // ---- Center play/pause + skip 10s buttons ----
+  &__center-controls {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    z-index: 15;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+
+    &.visible {
       opacity: 1;
       pointer-events: auto;
     }
   }
 
-  // Seek bar
-  &__seek {
-    width: 100%;
-    height: 4px;
-    margin-bottom: 12px;
+  &__skip-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: rgba(0, 0, 0, 0.45);
+    border: none;
+    color: #fff;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     cursor: pointer;
-    accent-color: $color-accent;
-    background: rgba($color-text, 0.2);
-    border-radius: 2px;
+    transition: background 0.2s ease, transform 0.15s ease;
+   position: relative;
+    span {
+      font-size: 9px;
+      font-weight: 600;
+      position: absolute;
+      top: 40%;
+    }
 
-    &::-webkit-slider-thumb {
-      background: $color-accent;
+    &:hover {
+      background: rgba(0, 0, 0, 0.7);
+      transform: scale(1.08);
     }
   }
 
-  // Bottom row: buttons + time + fullscreen
+  &__play-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    border: none;
+    color: #fff;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.8);
+      transform: scale(1.08);
+    }
+  }
+
+  // ---- Bottom controls bar ----
+  &__controls {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px 20px 16px;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 10;
+
+    &--visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  // ---- Seek bar: thin by default, thick + thumb visible on hover ----
+  &__seek {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 3px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.3);
+    outline: none;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: height 0.15s ease;
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 0px;
+      height: 0px;
+      border-radius: 50%;
+      background: #e50914;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      opacity: 0;
+    }
+
+    &::-moz-range-thumb {
+      width: 0px;
+      height: 0px;
+      border-radius: 50%;
+      background: #e50914;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      opacity: 0;
+      border: none;
+    }
+
+    &:hover,
+    &:active,
+    &:focus {
+      height: 6px;
+
+      &::-webkit-slider-thumb {
+        width: 13px;
+        height: 13px;
+        opacity: 1;
+      }
+
+      &::-moz-range-thumb {
+        width: 13px;
+        height: 13px;
+        opacity: 1;
+      }
+    }
+  }
+
   &__row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: $color-text;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
   &__left,
   &__right {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
   }
 
   &__btn {
-    background: none;
-    border: none;
-    color: $color-text;
-    cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
-    transition: color 0.15s ease;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    transition: background 0.2s ease, color 0.2s ease;
 
     &:hover {
-      color: $color-accent;
+      background: rgba(255, 255, 255, 0.15);
     }
-  }
 
-  &__time {
-    font-size: 0.85rem;
-    color: $color-text-muted;
+    &.active {
+      color: #e50914;
+    }
   }
 
   &__next {
-    font-size: 0.85rem;
-    color: $color-text-muted;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 10px;
+    white-space: nowrap;
+  }
 
-    &:hover {
-      color: $color-text;
+  &__time {
+    font-size: 13px;
+    color: #ddd;
+    white-space: nowrap;
+    margin-left: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // ---- Volume control ----
+  &__volume {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    &-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 80px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.3);
+      outline: none;
+      cursor: pointer;
+      transition: width 0.2s ease;
+
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: #fff;
+        cursor: pointer;
+      }
+
+      &::-moz-range-thumb {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: #fff;
+        cursor: pointer;
+        border: none;
+      }
     }
   }
+   &--hide-cursor {
+    cursor: none;
+
+    video {
+      cursor: none;
+    }
+  }
+
+  // ---- Responsive ----
+  @media (max-width: 600px) {
+    &__center-controls {
+      gap: 24px;
+    }
+
+    &__skip-btn {
+      width: 44px;
+      height: 44px;
+    }
+
+    &__play-center {
+      width: 56px;
+      height: 56px;
+    }
+
+    &__volume-slider {
+      width: 50px;
+    }
+
+    &__next span {
+      display: none;
+    }
+
+    &__time {
+      font-size: 11px;
+    }
+  }
+
 }

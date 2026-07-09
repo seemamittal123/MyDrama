@@ -4,12 +4,13 @@ import { FaThumbsUp } from "react-icons/fa";
 import axios from 'axios';
 import { server_Url } from '../App';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const ShowCard = ({ show, key }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [liked, setLiked] = useState(false)
   const menuRef = useRef(null);
-
+ const navigate  =useNavigate();
   const goToAddWatchList = async (e, showId) => {
     e.stopPropagation();
     try {
@@ -33,7 +34,21 @@ const ShowCard = ({ show, key }) => {
       console.log(error?.response);
     }
   }
+ const goToResume = async (e) => {
+    e.stopPropagation();
+  try {
+    const { data } = await axios.get(
+      `${server_Url}/api/users/watch-history/resume/${show._id}`,
+      { withCredentials: true }
+    );
 
+    if (data.success) {
+      navigate(`/Drama/${show.slug}/episode/${data.episode_id}`);
+    }
+  } catch (error) {
+    console.log(error?.response);
+  }
+};
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -68,27 +83,6 @@ const ShowCard = ({ show, key }) => {
       <div className="show-card-expanded">
         <div className="expanded-image-wrapper">
           <img src={show.banner_url} alt={show.title} />
-
-          {/* Progress bar for continue watching */}
-          {show.completedEpisodesCount !== undefined && show.totalEpisodesCount && (
-            <div style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: '4px',
-              backgroundColor: '#333',
-              overflow: 'hidden',
-              zIndex: 1
-            }}>
-              <div style={{
-                height: '100%',
-                backgroundColor: '#e50914',
-                width: `${(show.completedEpisodesCount / show.totalEpisodesCount) * 100}%`,
-                transition: 'width 0.3s ease'
-              }} />
-            </div>
-          )}
         </div>
 
         <div className="expanded-content">
@@ -105,7 +99,7 @@ const ShowCard = ({ show, key }) => {
           </div>
 
           <div className="expanded-actions">
-            <button className="action-btn play-btn">
+            <button className="action-btn play-btn" onClick={(e)=>goToResume(e)}>
               <Play size={18} fill="black" />
             </button>
             <button className="action-btn circle-btn" onClick={(e) => goToAddWatchList(e, show._id)}>

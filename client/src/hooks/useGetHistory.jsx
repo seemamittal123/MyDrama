@@ -14,8 +14,6 @@ const useGetHistory = () => {
       try {
         const { data } = await axios.get(`${server_Url}/api/users/history`, { withCredentials: true });
         dispatch(setHistory(data.history));
-        console.log(data);
-        
       } catch (error) {
         console.log(error.response);
         dispatch(setHistory([]));

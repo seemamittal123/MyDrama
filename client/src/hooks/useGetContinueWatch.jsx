@@ -12,7 +12,7 @@ const useGetContinueWatch = () => {
     const fetchUserContinueWatch = async () => {
       try {
         const { data } = await axios.get(`${server_Url}/api/users/continue-watching`, { withCredentials: true });
-        dispatch(setContinueWatch(data.history || []))
+        dispatch(setContinueWatch(data.history))
       } catch (error) {
         console.log("Continue watching error:", error.response);
         dispatch(setContinueWatch([])); 

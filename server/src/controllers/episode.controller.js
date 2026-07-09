@@ -19,15 +19,16 @@ export const createEpisode = async (req, res) => {
     if (!episode_number) {
       return res.status(400).json({ message: "episode_number is required" });
     }
-
+    
     let videoUrlValue = video_url;
+    
     if (req.files && req.files.video) {
       const videoFile = req.files.video[0];
       videoUrlValue = await uploadOnCloudinary(
         videoFile.buffer,
         videoFile.mimetype,
         "episodes/videos",
-        "video"
+        "video",
       );
     }
 
@@ -86,6 +87,8 @@ export const createEpisode = async (req, res) => {
         message: "This episode number already exists for this show",
       });
     }
+    console.log(error);
+    
     return res
       .status(500)
       .json({ message: `Create episode error: ${error.message}` });

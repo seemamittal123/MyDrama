@@ -34,7 +34,7 @@ const AdminDashboard = () => {
   }, [shows, search, statusFilter]);
 
   const goToEpisodes = (showId) => {
-    navigate(`/admin/shows/${showId}/episodes`);
+    navigate(`/admin/shows/${showId}`);
   };
 
   const goToEdit = (e, showId) => {

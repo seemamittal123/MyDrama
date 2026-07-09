@@ -18,7 +18,7 @@ const uploadOnCloudinary = async (fileBuffer, mimetype, folder = "shows") => {
       mimetype === "application/x-subrip" ||
       mimetype === "text/vtt"
     ) {
-      options.resource_type = "raw";
+      options.resource_type = "video";
     }
 
     const result = await cloudinary.uploader.upload(base64String, options);

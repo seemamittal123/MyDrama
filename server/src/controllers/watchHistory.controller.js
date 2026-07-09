@@ -61,8 +61,7 @@ export const getContinueWatching = async (req, res) => {
     const user_id = req.userId;
     const limit = parseInt(req.query.limit) || 10;
 
-
-    // Step 1: Get all watch history records for this user with watched duration
+    // Sab history nikalo, latest pehle
     const allHistory = await WatchHistory.find({
       user_id,
       watched_duration: { $gt: 0 },
@@ -71,32 +70,38 @@ export const getContinueWatching = async (req, res) => {
       .populate("episode_id")
       .sort({ last_watched_at: -1 });
 
-
-    // Step 2: Group by show_id and keep only unique shows (latest episode)
+    // Show ke hisaab se group karo — priority: incomplete record > completed record
     const showMap = new Map();
+
     for (const record of allHistory) {
-      if (!showMap.has(record.show_id._id.toString())) {
-        showMap.set(record.show_id._id.toString(), record);
+      const showId = record.show_id._id.toString();
+      const existing = showMap.get(showId);
+
+      if (!existing) {
+        // Is show ka pehla record mila — rakh lo (chahe completed ho ya na ho)
+        showMap.set(showId, record);
+      } else if (existing.completed && !record.completed) {
+        // Agar pehle wala completed tha, aur ye naya incomplete hai,
+        // to incomplete wale ko priority do (ye hi "resume" karne wala episode hai)
+        showMap.set(showId, record);
       }
+      // Agar existing already incomplete hai, to usi ko rakho — kuch mat karo
     }
 
-    // Step 3: For each show, count total episodes and completed episodes
+    // Ab har show ke liye total/completed episodes count karo
     const continueWatching = [];
     for (const [showId, record] of showMap) {
-      // Count total episodes in this show
       const totalEpisodes = await Episode.countDocuments({
         show_id: record.show_id._id,
       });
 
-      // Count completed episodes by user in this show
       const completedEpisodes = await WatchHistory.countDocuments({
         user_id,
         show_id: record.show_id._id,
         completed: true,
       });
 
-
-      // Only include if NOT all episodes are completed
+      // Sirf tab hatao jab SAB episodes complete ho chuke hon
       if (completedEpisodes < totalEpisodes) {
         continueWatching.push({
           ...record.toObject(),
@@ -106,13 +111,74 @@ export const getContinueWatching = async (req, res) => {
       }
     }
 
+    // Sabse recent activity wala show upar rahe
+    continueWatching.sort(
+      (a, b) => new Date(b.last_watched_at) - new Date(a.last_watched_at)
+    );
 
     return res
       .status(200)
       .json({ success: true, history: continueWatching.slice(0, limit) });
   } catch (error) {
     console.error("Get continue watching error:", error.message);
-    console.error("Stack:", error.stack);
+    return res.status(500).json({ message: `Error: ${error.message}` });
+  }
+};
+
+export const getResumeEpisode = async (req, res) => {
+  try {
+    const user_id = req.userId;
+    const { show_id } = req.params;
+
+    // Show ke sab episodes, order mein
+    const episodes = await Episode.find({ show_id }).sort({ episode_number: 1 });
+
+    if (!episodes.length) {
+      return res.status(404).json({ message: "No episodes found for this show" });
+    }
+
+    // User ki is show ki poori watch history
+    const historyRecords = await WatchHistory.find({ user_id, show_id });
+
+    // episode_id => history record ka quick lookup banao
+    const historyMap = new Map();
+    historyRecords.forEach((h) => historyMap.set(h.episode_id.toString(), h));
+
+    // Episode order mein dekho — jo pehla incomplete/undekha mile, wahi resume point hai
+    for (const ep of episodes) {
+      const record = historyMap.get(ep._id.toString());
+
+      if (!record) {
+        // Ye episode kabhi dekha hi nahi — yahi se start karo (0 second se)
+        return res.status(200).json({
+          success: true,
+          episode_id: ep._id,
+          watched_duration: 0,
+        });
+      }
+
+      if (!record.completed) {
+        // Ye episode adhura dekha hai — yahin se resume karo
+        return res.status(200).json({
+          success: true,
+          episode_id: ep._id,
+          watched_duration: record.watched_duration,
+        });
+      }
+      // Agar completed hai, to agle episode pe loop continue hoga
+    }
+
+    // Agar yahan tak pahunch gaye, matlab SAB episodes complete ho chuke hain
+    // Last episode ko dobara shuru se dikhao
+    const lastEpisode = episodes[episodes.length - 1];
+    return res.status(200).json({
+      success: true,
+      episode_id: lastEpisode._id,
+      watched_duration: 0,
+      allCompleted: true,
+    });
+  } catch (error) {
+    console.error("Get resume episode error:", error.message);
     return res.status(500).json({ message: `Error: ${error.message}` });
   }
 };

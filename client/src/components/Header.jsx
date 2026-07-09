@@ -38,12 +38,19 @@ const Header = ({ setSearchToggle }) => {
           <li className="navbar__item">
             <Link to="/explore">Explore</Link>
           </li>
-          {user?.role === "admin" && user ? (
-            <li className="navbar__item"><Link to="/admin" className="navbar__admin-link">Admin</Link>
-            </li>)
-            : (<li className="navbar__item"><Link to="/watch-list" className="navbar__admin-link">Watch list</Link>
-            </li>
-            )}
+          {user && (
+            <>
+              {
+                user?.role =="admin" &&
+                <li className="navbar__item"><Link to="/admin" className="navbar__admin-link">Admin</Link>
+                </li>
+              }
+              <li className="navbar__item"><Link to="/watch-list" className="navbar__admin-link">Watch list</Link>
+              </li>
+              <li className="navbar__item"><Link to="/history" className="navbar__admin-link">History</Link>
+              </li>
+            </>
+          )}
           <li className="navbar__item">
             <button className="navbar__search-btn" onClick={() => setSearchToggle(true)}>
               <FaSearch />

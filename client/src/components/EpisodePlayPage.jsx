@@ -97,6 +97,7 @@ export default function EpisodePlayerPage() {
         startTime={savedProgress?.watched_duration || 0}
         onProgress={handleProgress}
         handleNextEpisode={handleNextEpisode}
+        thumbnail_url={episode.thumbnail_url}
       />
     </div>
   );

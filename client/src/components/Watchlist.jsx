@@ -18,7 +18,7 @@ const Watchlist = () => {
         {
           loading ?
             <div className='spinner'>
-              <h1>You need to sign in</h1>
+              <img src={loader} alt="Loading" />
             </div>
             :
             watchList?.length == 0 ?

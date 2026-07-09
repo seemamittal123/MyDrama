@@ -38,9 +38,13 @@
 
   .shows-wrapper {
     padding: 20px 0;
-    @include flex-left;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 10px;
-    flex-wrap: wrap;
+
+    @media (max-width:748px) {
+    grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   @media (max-width:748px) {

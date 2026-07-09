@@ -11,6 +11,7 @@ import {
   getFullHistory,
   clearHistory,
   getProgressByEpisode,
+  getResumeEpisode,
 } from "../controllers/watchHistory.controller.js";
 const user = express.Router();
 
@@ -20,6 +21,7 @@ user.get("/watchlist", isAuth, getWatchList);
 user.post("/watch-history/progress", isAuth, updateProgress);
 user.get("/watch-history/progress/:episode_id", isAuth, getProgressByEpisode);
 user.get("/continue-watching", isAuth, getContinueWatching);
+user.get("/watch-history/resume/:show_id", isAuth, getResumeEpisode);
 user.get("/history", isAuth, getFullHistory);
 user.delete("/history", isAuth, clearHistory);
 

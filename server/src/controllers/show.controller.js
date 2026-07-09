@@ -202,7 +202,9 @@ export const searchShow = async (req, res) => {
       return res.status(400).json({ message: "Search query is required" });
     }
 
-    const shows = await Show.find({ $text: { $search: search } });
+    const shows = await Show.find({
+      title: { $regex: search, $options: "i" },
+    });
 
     return res.status(200).json({
       success: true,

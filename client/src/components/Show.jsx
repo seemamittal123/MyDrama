@@ -16,26 +16,27 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
   const [loading, setloading] = useState(false)
   const navigate = useNavigate();
 
-  // Play button logic - resume last watched or play first
-  const handlePlayClick = () => {
-    if (!episodes || episodes.length === 0) return;
 
-    // Agar show continue watching se khuli hai, toh episode_id available hoga
-    // Warna pehla episode khol do
-    const episodeToPlay = show?.episode_id?._id || episodes[0]._id;
+  const goToResume = async () => {
+    try {
+      const { data } = await axios.get(
+        `${server_Url}/api/users/watch-history/resume/${show._id}`,
+        { withCredentials: true }
+      );
 
-    console.log("Show data:", show);
-    console.log("Episode to play:", episodeToPlay);
-    console.log("All episodes:", episodes);
-
-    navigate(`/Drama/${show.slug}/episode/${episodeToPlay}`);
+      if (data.success) {
+        navigate(`/Drama/${show.slug}/episode/${data.episode_id}`);
+      }
+    } catch (error) {
+      console.log(error?.response);
+    }
   };
-
   const formatDuration = (seconds) => {
     if (!seconds) return "—";
-    const m = Math.floor(seconds / 60);
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor(seconds % 60);
     const s = seconds % 60;
-    return `${m}m ${s > 0 ? `${s}s` : ""}`.trim();
+    return `${h}h ${m}m ${s > 0 ? `${s}s` : ""}`.trim();
   };
   const fetchRelatedShows = async () => {
     try {
@@ -123,7 +124,7 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
             </div>
 
             <div className="show__actions">
-              <button className="show__play-btn" onClick={handlePlayClick}>
+              <button className="show__play-btn" onClick={goToResume}>
                 <Play size={20} fill="black" />
                 Play
               </button>

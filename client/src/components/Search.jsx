@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import axios from 'axios';
 import { server_Url } from '../App';
 import { FaSearch } from "react-icons/fa";
@@ -6,8 +6,10 @@ import ShowCard from './ShowCard';
 import { IoIosArrowBack } from "react-icons/io";
 import { showContext } from '../context/ShowProvider';
 import loader from '../assets/loader.svg';
+import { useSelector } from 'react-redux';
 
 const Search = ({ handleClose }) => {
+  const { tranding } = useSelector(state => state.show)
   const [search, setSearch] = useState('');
   const [shows, setShows] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -27,7 +29,10 @@ const Search = ({ handleClose }) => {
       setLoading(false);
     }
   }
-
+  useEffect(() => {
+    if (search == "")
+      setShows(tranding)
+  }, [search])
   return (
     <div className='search-cover-box'>
       <div className="search-wrapper">
@@ -43,11 +48,9 @@ const Search = ({ handleClose }) => {
         {
           loading ?
             <div className='spinner'>
-                <img src={loader} alt="" />
+              <img src={loader} alt="" />
             </div> :
-            shows?.length == 0 ?
-              <div className='empty'>No Show</div>
-              :
+            shows?.length != 0 &&
               <div className='shows-wrapper'>
                 {shows?.map((show) => (
                   <div onClick={() => handleShow(show._id)}>
