@@ -46,8 +46,7 @@ export default function EpisodePlayerPage() {
 
       } catch (error) {
         console.log("Fetch episode error:", error.response);
-        if (error.response.data.message == "token is not found")
-          toast.error("You need to create account");
+        toast.error("You need to create account");
       } finally {
         setLoading(false);
       }
