@@ -1,4 +1,4 @@
-import WatchHistory from "../models/WatchHistory.js";
+import WatchHistory from "../models/watchHistory.js";
 import Episode from "../models/Episode.js";
 
 export const updateProgress = async (req, res) => {

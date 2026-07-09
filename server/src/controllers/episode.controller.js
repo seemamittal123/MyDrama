@@ -170,6 +170,7 @@ export const getEpisodesByShow = async (req, res) => {
 export const getEpisode = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId =req.userId;
     const episode = await Episode.findById(id);
 
     const show = await Show.findById(episode.show_id);
