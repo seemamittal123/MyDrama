@@ -5,6 +5,7 @@ import axios from "axios";
 import { server_Url } from "../App";
 import loader from '../assets/loader.svg';
 import { ChevronRight } from 'lucide-react';
+import toast from "react-hot-toast";
 
 export default function EpisodePlayerPage() {
   const { slug, id } = useParams();
@@ -45,6 +46,8 @@ export default function EpisodePlayerPage() {
 
       } catch (error) {
         console.log("Fetch episode error:", error.response);
+        if (error.response.data.message == "token is not found")
+          toast.error("You need to create account");
       } finally {
         setLoading(false);
       }
