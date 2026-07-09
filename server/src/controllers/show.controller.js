@@ -1,6 +1,6 @@
 import Show from "../models/show.js";
 import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
-import Episode from "../models/Episode.js";
+import Episode from "../models/episode.js";
 import Like from "../models/likes.js";
 
 export const createShow = async (req, res) => {

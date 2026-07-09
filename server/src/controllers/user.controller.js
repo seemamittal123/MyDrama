@@ -1,5 +1,3 @@
-// current user
-
 import User from "../models/user.js";
 
 export const currentUser = async (req, res) => {
@@ -17,9 +15,3 @@ export const currentUser = async (req, res) => {
   }
 };
 
-export const watchHistory = async (req, res) => {
-  try {
-  } catch (error) {
-    return res.status(500).json({ message: `Watch history error ${error}` });
-  }
-};
