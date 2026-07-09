@@ -5,7 +5,7 @@ import { server_Url } from '../App';
 import { setContinueWatch, setHistory } from '../redux/userSlice';
 
 const useGetContinueWatch = () => {
-
+  const { user } = useSelector(state => state.user);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -18,6 +18,7 @@ const useGetContinueWatch = () => {
         dispatch(setContinueWatch([])); 
       }
     }
+    if(user?._id)
     fetchUserContinueWatch();
   }, [dispatch])
 }

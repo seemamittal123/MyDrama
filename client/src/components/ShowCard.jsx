@@ -88,7 +88,8 @@ const ShowCard = ({ show, key }) => {
         console.log(error?.response);
       }
     }
-    checkLike();
+    if (user._id)
+      checkLike();
   }, [])
 
   return (

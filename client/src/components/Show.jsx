@@ -109,7 +109,8 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
         console.log(error?.response);
       }
     }
-    checkLike();
+    if (user?._id)
+      checkLike();
   }, [])
 
 
