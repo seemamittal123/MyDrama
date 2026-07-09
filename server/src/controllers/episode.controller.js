@@ -19,9 +19,9 @@ export const createEpisode = async (req, res) => {
     if (!episode_number) {
       return res.status(400).json({ message: "episode_number is required" });
     }
-    
+
     let videoUrlValue = video_url;
-    
+
     if (req.files && req.files.video) {
       const videoFile = req.files.video[0];
       videoUrlValue = await uploadOnCloudinary(
@@ -87,8 +87,7 @@ export const createEpisode = async (req, res) => {
         message: "This episode number already exists for this show",
       });
     }
-    console.log(error);
-    
+
     return res
       .status(500)
       .json({ message: `Create episode error: ${error.message}` });
@@ -173,7 +172,13 @@ export const getEpisode = async (req, res) => {
     const { id } = req.params;
     const episode = await Episode.findById(id);
 
-    await Show.findByIdAndUpdate(episode.show_id, { $inc: { views: 1 } });
+    const show = await Show.findById(episode.show_id);
+    
+    if (!show.viewedBy.includes(userId)) {
+      show.views += 1;
+      show.viewedBy.push(userId);
+      await show.save();
+    }
 
     return res.status(201).json({ success: true, episode });
   } catch (error) {
