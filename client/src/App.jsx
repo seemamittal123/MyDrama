@@ -10,6 +10,7 @@ import useGetPopularShows from './hooks/useGetPopularShows';
 import './style/index.scss';
 import useGetAllShows from './hooks/useGetAllShows';
 import useGetContinueWatch from './hooks/useGetContinueWatch';
+import useMovies from './hooks/useMovies';
 export const server_Url = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 
 const App = () => {
@@ -22,7 +23,8 @@ const App = () => {
   useGetHistory();
   useGetContinueWatch();
   useGetWatchList();
-  
+  useMovies();
+
   return (
     <>
       <Outlet />

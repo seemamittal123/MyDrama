@@ -7,7 +7,7 @@ import { FaPlay, FaPlus, FaThumbsUp } from "react-icons/fa";
 import toast from "react-hot-toast";
 import loader from '../assets/loader.svg';
 import VideoPlayer from "./VideoPlayer";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const Show = ({ show, episodes, onClose, handleShow }) => {
@@ -147,6 +147,7 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
                 <Play size={20} fill="black" />
                 Play
               </button>
+              <Link className="show__play-btn" target="_blank" to={`${show.trailer_url}`}>Trailer</Link>
               <button aria-label="Add to My List" className="show__icon-btn" onClick={(e) => goToAddWatchList(e, show?._id)}>
                 <Plus size={20} />
               </button>

@@ -19,7 +19,7 @@
 
 .show {
   width: 100%;
-  max-width: 48rem;
+  max-width: 65rem;
   margin: 0 auto;
   background-color: #181818;
   color: #fff;
@@ -36,17 +36,13 @@
 
   &__banner {
     position: relative;
-    height: 16rem;
+    height: 25rem;
     width: 100%;
     background: linear-gradient(135deg, #3a2a1a 0%, #241a12 50%, #0d0d0d 100%);
     display: flex;
     align-items: center;
     padding: 0 2rem;
     overflow: hidden;
-
-    @media (min-width: 640px) {
-      height: 20rem;
-    }
   }
 
   &__banner-img {
@@ -357,8 +353,11 @@
     gap: 15px;
     grid-template-columns: repeat(3, 1fr);
 
-    @media (min-width: 640px) {
+    @media (max-width: 748px) {
       grid-template-columns: repeat(3, 1fr);
+    }
+    @media (max-width: 448px) {
+      grid-template-columns: repeat(2, 1fr);
     }
 
     .show-card {
@@ -384,7 +383,7 @@
 
       &__image {
         position: relative;
-        height: 100px;
+        height: 180px;
         overflow: hidden;
 
         img {
@@ -394,6 +393,11 @@
           transition: 0.4s;
           display: block;
         }
+
+        @media (max-width: 748px) {
+          height: 100px;
+        }
+
       }
 
       &__overlay {
