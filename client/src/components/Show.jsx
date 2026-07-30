@@ -38,13 +38,23 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
       toast.error("You need to sign in")
     }
   };
-  const formatDuration = (seconds) => {
-    if (!seconds) return "—";
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor(seconds % 60);
-    const s = seconds % 60;
-    return `${h}h ${m}m ${s > 0 ? `${s}s` : ""}`.trim();
-  };
+const formatDuration = (seconds) => {
+  if (seconds == null || seconds < 0) return "—";
+
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+
+  if (h > 0) {
+    return `${h}h ${m}m`;
+  }
+
+  if (m > 0) {
+    return `${m}m`;
+  }
+
+  return `${s}s`;
+};
   const fetchRelatedShows = async () => {
     try {
       setloading(true);
@@ -147,7 +157,7 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
                 <Play size={20} fill="black" />
                 Play
               </button>
-              <Link className="show__play-btn" target="_blank" to={`${show.trailer_url}`}>Trailer</Link>
+              <Link className="show__play-btn" target="_blank" to={`${show?.trailer_url}`}>Trailer</Link>
               <button aria-label="Add to My List" className="show__icon-btn" onClick={(e) => goToAddWatchList(e, show?._id)}>
                 <Plus size={20} />
               </button>

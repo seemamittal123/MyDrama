@@ -1,10 +1,28 @@
+// =============================================================
+// Video Player — "viewfinder" skin
+// Frosted glass control deck, amber accent, monospace timecodes.
+// Fully responsive down to phone widths, with a forced-landscape
+// mode that rotates the player itself on phones that don't
+// support the native Screen Orientation lock API.
+// =============================================================
+
 .video-player {
+  --vp-glass: rgba(14, 14, 16, 0.55);
+  --vp-glass-strong: rgba(10, 10, 12, 0.82);
+  --vp-accent: #f5a623;
+  --vp-accent-soft: rgba(245, 166, 35, 0.35);
+  --vp-text: #f5f5f0;
+  --vp-text-dim: #b7b7ae;
+  --vp-mono: "SF Mono", "Roboto Mono", ui-monospace, Menlo, Consolas, monospace;
+  --vp-radius: 14px;
+
   position: relative;
   width: 100%;
   height: 100%;
   background: #000;
   overflow: hidden;
-  border-radius: 8px;
+  border-radius: var(--vp-radius);
+  isolation: isolate;
 
   video {
     width: 100%;
@@ -15,15 +33,16 @@
     cursor: pointer;
   }
 
-  // ---- Close/Cross button ----
- // ---- Close/Cross button ----
+  // ---- Close/back button ----
   &__cross {
     position: absolute;
     top: 16px;
     right: 16px;
     z-index: 20;
-    color: #fff;
-    background: rgba(0, 0, 0, 0.5);
+    color: var(--vp-text);
+    background: var(--vp-glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     width: 38px;
     height: 38px;
     display: flex;
@@ -32,11 +51,10 @@
     border-radius: 50%;
     cursor: pointer;
 
-    // hidden by default
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
+    transition: opacity 0.25s ease, visibility 0.25s ease, background 0.2s ease;
 
     &.visible {
       opacity: 1;
@@ -45,11 +63,11 @@
     }
 
     &:hover {
-      background: rgba(0, 0, 0, 0.75);
+      background: var(--vp-glass-strong);
     }
   }
 
-  // ---- Center controls: fully hidden when not hovering ----
+  // ---- Center play/pause + skip-10 controls ----
   &__center-controls {
     position: absolute;
     top: 50%;
@@ -57,7 +75,7 @@
     transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
-    gap: 40px;
+    gap: 36px;
     z-index: 15;
 
     opacity: 0;
@@ -72,18 +90,76 @@
     }
   }
 
-  // ---- Bottom controls: fully hidden when not hovering ----
+  &__skip-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: var(--vp-glass);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--vp-text);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
+
+    span {
+      font-family: var(--vp-mono);
+      font-size: 9px;
+      font-weight: 600;
+      position: absolute;
+      top: 42%;
+    }
+
+    &:hover {
+      background: var(--vp-glass-strong);
+      border-color: var(--vp-accent-soft);
+      transform: scale(1.08);
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+
+  &__play-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--vp-glass-strong);
+    border: 1px solid var(--vp-accent-soft);
+    color: var(--vp-text);
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 0 0 var(--vp-accent-soft);
+    transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.9);
+      box-shadow: 0 0 22px var(--vp-accent-soft);
+      transform: scale(1.06);
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+
+  // ---- Bottom control deck ----
   &__controls {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
-    padding: 10px 20px 16px;
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.85) 0%,
-      rgba(0, 0, 0, 0) 100%
-    );
+    padding: 8px 18px calc(14px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0) 100%);
 
     opacity: 0;
     visibility: hidden;
@@ -100,25 +176,47 @@
     }
   }
 
-  // ---- Seek bar (color fill via inline gradient) ----
+  // ---- Timecode + scrub bar row ----
+  &__seek-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+
+  &__time {
+    font-family: var(--vp-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    color: var(--vp-text-dim);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    min-width: 38px;
+
+    &--current {
+      color: var(--vp-text);
+      text-align: right;
+    }
+  }
+
   &__seek {
     -webkit-appearance: none;
     appearance: none;
+    flex: 1;
     width: 100%;
     height: 3px;
     border-radius: 2px;
     outline: none;
     cursor: pointer;
-    margin-bottom: 10px;
     transition: height 0.15s ease;
-    // background is now set inline via JSX (dynamic progress color)
 
     &::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 0px;
       height: 0px;
       border-radius: 50%;
-      background: #e50914;
+      background: var(--vp-accent);
+      box-shadow: 0 0 6px var(--vp-accent-soft);
       cursor: pointer;
       transition: all 0.15s ease;
       opacity: 0;
@@ -128,7 +226,7 @@
       width: 0px;
       height: 0px;
       border-radius: 50%;
-      background: #e50914;
+      background: var(--vp-accent);
       cursor: pointer;
       transition: all 0.15s ease;
       opacity: 0;
@@ -137,7 +235,7 @@
 
     &:hover,
     &:active,
-    &:focus {
+    &:focus-visible {
       height: 6px;
 
       &::-webkit-slider-thumb {
@@ -152,149 +250,10 @@
         opacity: 1;
       }
     }
-  }
 
-  // ---- Center play/pause + skip 10s buttons ----
-  &__center-controls {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    z-index: 15;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease;
-
-    &.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-  }
-
-  &__skip-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    background: rgba(0, 0, 0, 0.45);
-    border: none;
-    color: #fff;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.15s ease;
-   position: relative;
-    span {
-      font-size: 9px;
-      font-weight: 600;
-      position: absolute;
-      top: 40%;
-    }
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.7);
-      transform: scale(1.08);
-    }
-  }
-
-  &__play-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.55);
-    border: none;
-    color: #fff;
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background 0.2s ease, transform 0.15s ease;
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.8);
-      transform: scale(1.08);
-    }
-  }
-
-  // ---- Bottom controls bar ----
-  &__controls {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 10px 20px 16px;
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.85) 0%,
-      rgba(0, 0, 0, 0) 100%
-    );
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    z-index: 10;
-
-    &--visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  // ---- Seek bar: thin by default, thick + thumb visible on hover ----
-  &__seek {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 3px;
-    border-radius: 2px;
-    background: rgba(255, 255, 255, 0.3);
-    outline: none;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: height 0.15s ease;
-
-    &::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 0px;
-      height: 0px;
-      border-radius: 50%;
-      background: #e50914;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      opacity: 0;
-    }
-
-    &::-moz-range-thumb {
-      width: 0px;
-      height: 0px;
-      border-radius: 50%;
-      background: #e50914;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      opacity: 0;
-      border: none;
-    }
-
-    &:hover,
-    &:active,
-    &:focus {
-      height: 6px;
-
-      &::-webkit-slider-thumb {
-        width: 13px;
-        height: 13px;
-        opacity: 1;
-      }
-
-      &::-moz-range-thumb {
-        width: 13px;
-        height: 13px;
-        opacity: 1;
-      }
+    &:focus-visible {
+      outline: 2px solid var(--vp-accent);
+      outline-offset: 3px;
     }
   }
 
@@ -303,14 +262,14 @@
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px;
   }
 
   &__left,
   &__right {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
   }
 
   &__btn {
@@ -320,49 +279,47 @@
     gap: 6px;
     background: transparent;
     border: none;
-    color: #fff;
+    color: var(--vp-text);
     cursor: pointer;
-    padding: 6px;
-    border-radius: 6px;
+    padding: 8px;
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 8px;
     transition: background 0.2s ease, color 0.2s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--vp-accent);
+      outline-offset: 2px;
     }
 
     &.active {
-      color: #e50914;
+      color: var(--vp-accent);
     }
   }
 
   &__next {
     font-size: 13px;
     font-weight: 500;
-    padding: 6px 10px;
+    padding: 8px 12px;
     white-space: nowrap;
-  }
-
-  &__time {
-    font-size: 13px;
-    color: #ddd;
-    white-space: nowrap;
-    margin-left: 4px;
-    font-variant-numeric: tabular-nums;
   }
 
   // ---- Volume control ----
   &__volume {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
 
     &-slider {
       -webkit-appearance: none;
       appearance: none;
-      width: 80px;
+      width: 78px;
       height: 4px;
       border-radius: 2px;
-      background: rgba(255, 255, 255, 0.3);
       outline: none;
       cursor: pointer;
       transition: width 0.2s ease;
@@ -386,7 +343,8 @@
       }
     }
   }
-   &--hide-cursor {
+
+  &--hide-cursor {
     cursor: none;
 
     video {
@@ -394,33 +352,81 @@
     }
   }
 
-  // ---- Responsive ----
+  // ---- Forced-landscape fallback ----
+  // Applied on phones where the native Screen Orientation lock isn't
+  // available/allowed (iOS Safari and friends). Rotates a viewport-sized
+  // box 90deg so the player visually fills the screen in landscape while
+  // the device itself stays physically portrait.
+  &--rotated {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vh;
+    height: 100vw;
+    transform: rotate(90deg) translateY(-100%);
+    transform-origin: top left;
+    z-index: 9999;
+    border-radius: 0;
+  }
+
+  // ---- Responsive: tablets and small laptops ----
+  @media (max-width: 900px) {
+    --vp-radius: 10px;
+
+    &__controls {
+      padding: 8px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
+  // ---- Responsive: phones ----
   @media (max-width: 600px) {
+    &__cross {
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+    }
+
     &__center-controls {
-      gap: 24px;
+      gap: 20px;
     }
 
     &__skip-btn {
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
     }
 
     &__play-center {
-      width: 56px;
-      height: 56px;
+      width: 58px;
+      height: 58px;
+    }
+
+    &__time {
+      font-size: 10.5px;
+      min-width: 30px;
     }
 
     &__volume-slider {
-      width: 50px;
+      width: 44px;
     }
 
     &__next span {
       display: none;
     }
 
-    &__time {
-      font-size: 11px;
+    &__next {
+      padding: 8px;
+    }
+
+    &__row {
+      gap: 2px;
     }
   }
 
+  // Fills the whole screen edge-to-edge once we're in fullscreen or the
+  // rotated fallback — no rounding, no wasted space.
+  &:fullscreen,
+  &.video-player--rotated {
+    border-radius: 0;
+  }
 }

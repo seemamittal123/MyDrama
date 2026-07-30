@@ -15,6 +15,9 @@ import {
 import { RxCross1 } from "react-icons/rx";
 import { useNavigate } from "react-router-dom";
 
+const MOBILE_QUERY = "(max-width: 768px)";
+const PORTRAIT_QUERY = "(orientation: portrait)";
+
 const VideoPlayer = ({
   thumbnail_url,
   videoUrl,
@@ -36,6 +39,16 @@ const VideoPlayer = ({
   const [showControls, setShowControls] = useState(true);
   const [captionsOn, setCaptionsOn] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // ---- Mobile / rotation awareness ----
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.matchMedia(MOBILE_QUERY).matches : false
+  );
+  const [isPortrait, setIsPortrait] = useState(
+    typeof window !== "undefined" ? window.matchMedia(PORTRAIT_QUERY).matches : false
+  );
+  // true once the player has been asked to go into forced-landscape viewing mode
+  const [forceLandscape, setForceLandscape] = useState(false);
 
   const navigate = useNavigate();
 
@@ -84,6 +97,57 @@ const VideoPlayer = ({
     return () => clearInterval(interval);
   }, [onProgress]);
 
+  // ---- Track viewport size + device orientation ----
+  useEffect(() => {
+    const mobileMq = window.matchMedia(MOBILE_QUERY);
+    const portraitMq = window.matchMedia(PORTRAIT_QUERY);
+
+    const handleMobileChange = (e) => setIsMobile(e.matches);
+    const handlePortraitChange = (e) => setIsPortrait(e.matches);
+
+    mobileMq.addEventListener("change", handleMobileChange);
+    portraitMq.addEventListener("change", handlePortraitChange);
+
+    return () => {
+      mobileMq.removeEventListener("change", handleMobileChange);
+      portraitMq.removeEventListener("change", handlePortraitChange);
+    };
+  }, []);
+
+  // ---- Landscape helpers ----
+  // Tries the native Fullscreen + Screen Orientation APIs first (works on
+  // Android Chrome). Where those aren't supported (iOS Safari, etc.) the
+  // `video-player--rotated` CSS class rotates the player itself so it still
+  // fills the screen in landscape while the phone stays physically portrait.
+  const enterLandscapeMode = async () => {
+    if (!isMobile) return;
+    setForceLandscape(true);
+
+    try {
+      if (containerRef.current?.requestFullscreen) {
+        await containerRef.current.requestFullscreen();
+      }
+      if (window.screen?.orientation?.lock) {
+        await window.screen.orientation.lock("landscape");
+      }
+    } catch (err) {
+      // Native lock unavailable/blocked — the CSS rotation fallback covers it
+      console.log("Orientation lock unavailable, using CSS fallback:", err?.message);
+    }
+  };
+
+  const exitLandscapeMode = () => {
+    setForceLandscape(false);
+    try {
+      window.screen?.orientation?.unlock?.();
+    } catch (err) {
+      // ignore
+    }
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  };
+
   // ---- End / pause tracking ----
   useEffect(() => {
     const video = videoRef.current;
@@ -94,6 +158,7 @@ const VideoPlayer = ({
         watched_duration: Math.floor(video.duration || 0),
         total_duration: Math.floor(video.duration || 0),
       });
+      exitLandscapeMode();
     };
 
     const handlePause = () => {
@@ -110,12 +175,24 @@ const VideoPlayer = ({
       video.removeEventListener("ended", handleEnded);
       video.removeEventListener("pause", handlePause);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onProgress]);
 
   // ---- Fullscreen change listener ----
   useEffect(() => {
     const handleFsChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      const isFs = !!document.fullscreenElement;
+      setIsFullscreen(isFs);
+      // If the user backs out of native fullscreen (e.g. Android back button),
+      // drop the forced-landscape mode and any orientation lock with it.
+      if (!isFs) {
+        setForceLandscape(false);
+        try {
+          window.screen?.orientation?.unlock?.();
+        } catch (err) {
+          // ignore
+        }
+      }
     };
     document.addEventListener("fullscreenchange", handleFsChange);
     return () => document.removeEventListener("fullscreenchange", handleFsChange);
@@ -155,8 +232,8 @@ const VideoPlayer = ({
   }, []);
 
   // ---- AUTO-HIDE CONTROLS LOGIC ----
-  // Controls dikhte hain: mouse move pe, ya jab video paused ho.
-  // 3 sec inactivity ke baad (agar playing hai) auto-hide ho jate hain.
+  // Controls show on mouse move / tap, or whenever the video is paused.
+  // After 3s of inactivity while playing, they auto-hide.
   const resetHideTimer = () => {
     setShowControls(true);
     if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
@@ -181,7 +258,7 @@ const VideoPlayer = ({
     }
   };
 
-  // Jab play kiya jaye to timer start, jab pause ho to hamesha visible
+  // Play -> start the hide timer; pause -> always visible
   useEffect(() => {
     if (playing) {
       resetHideTimer();
@@ -205,6 +282,7 @@ const VideoPlayer = ({
     if (video.paused) {
       video.play().catch((error) => console.log("Play error:", error.message));
       setPlaying(true);
+      enterLandscapeMode();
     } else {
       video.pause();
       setPlaying(false);
@@ -276,19 +354,38 @@ const VideoPlayer = ({
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  const onCross = () => navigate("/");
+  const onCross = () => {
+    exitLandscapeMode();
+    navigate("/");
+  };
+
+  // Starting the next episode should also drop the viewer straight into
+  // the rotated landscape view on a phone, same as pressing Play.
+  const onNextEpisode = () => {
+    handleNextEpisode?.();
+    enterLandscapeMode();
+  };
 
   const seekPercent = duration ? (progress / duration) * 100 : 0;
+
+  // Only apply the CSS rotation hack when we actually need it: forced
+  // landscape mode is on, we're on a phone-sized screen, AND the device is
+  // still physically portrait (native orientation.lock already handles the
+  // browsers that support it, so this only fires as the fallback).
+  const isRotated = forceLandscape && isMobile && isPortrait;
 
   return (
     <div
       ref={containerRef}
-      className={`video-player ${!showControls ? "video-player--hide-cursor" : ""}`}
+      className={`video-player ${!showControls ? "video-player--hide-cursor" : ""} ${
+        isRotated ? "video-player--rotated" : ""
+      }`}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onTouchStart={handleMouseMove}
     >
       <div className={`video-player__cross ${showControls ? "visible" : ""}`} onClick={onCross}>
-        <RxCross1 size={22} />
+        <RxCross1 size={20} />
       </div>
 
       <video
@@ -301,6 +398,7 @@ const VideoPlayer = ({
         poster={thumbnail_url}
         controlsList="nodownload"
         preload="auto"
+        playsInline
       >
         {subtitleUrl && (
           <track
@@ -315,52 +413,61 @@ const VideoPlayer = ({
 
       <div className={`video-player__center-controls ${showControls ? "visible" : ""}`}>
         <button className="video-player__skip-btn" onClick={() => skip(-10)}>
-          <RotateCcw size={28} />
+          <RotateCcw size={24} />
           <span>10</span>
         </button>
 
         <button className="video-player__play-center" onClick={togglePlay}>
-          {playing ? <Pause size={34} /> : <Play size={34} />}
+          {playing ? <Pause size={30} /> : <Play size={30} />}
         </button>
 
         <button className="video-player__skip-btn" onClick={() => skip(10)}>
-          <RotateCw size={28} />
+          <RotateCw size={24} />
           <span>10</span>
         </button>
       </div>
 
       <div
-        className={`video-player__controls ${showControls ? "video-player__controls--visible" : ""
-          }`}
+        className={`video-player__controls ${
+          showControls ? "video-player__controls--visible" : ""
+        }`}
       >
-        <input
-          type="range"
-          className="video-player__seek"
-          min={0}
-          max={duration || 0}
-          value={progress}
-          onChange={handleSeek}
-          style={{
-            background: `linear-gradient(to right, #e50914 ${seekPercent}%, rgba(255,255,255,0.3) ${seekPercent}%)`,
-          }}
-        />
+        <div className="video-player__seek-row">
+          <span className="video-player__time video-player__time--current">
+            {formatTime(progress)}
+          </span>
+          <input
+            type="range"
+            className="video-player__seek"
+            min={0}
+            max={duration || 0}
+            value={progress}
+            onChange={handleSeek}
+            style={{
+              background: `linear-gradient(to right, var(--vp-accent) ${seekPercent}%, rgba(255,255,255,0.25) ${seekPercent}%)`,
+            }}
+          />
+          <span className="video-player__time video-player__time--duration">
+            {formatTime(duration)}
+          </span>
+        </div>
 
         <div className="video-player__row">
           <div className="video-player__left">
             <button className="video-player__btn" onClick={togglePlay}>
-              {playing ? <Pause size={22} /> : <Play size={22} />}
+              {playing ? <Pause size={20} /> : <Play size={20} />}
             </button>
 
             <button className="video-player__btn" onClick={() => skip(-10)}>
-              <RotateCcw size={18} />
+              <RotateCcw size={17} />
             </button>
             <button className="video-player__btn" onClick={() => skip(10)}>
-              <RotateCw size={18} />
+              <RotateCw size={17} />
             </button>
 
             <div className="video-player__volume">
               <button className="video-player__btn" onClick={toggleMute}>
-                {muted || volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}
+                {muted || volume === 0 ? <VolumeX size={19} /> : <Volume2 size={19} />}
               </button>
               <input
                 type="range"
@@ -371,16 +478,10 @@ const VideoPlayer = ({
                 value={muted ? 0 : volume}
                 onChange={handleVolumeChange}
                 style={{
-                  background: `linear-gradient(to right,
-                       #ff0000 ${volume * 100}%,
-                     #555 ${volume * 100}%)`,
+                  background: `linear-gradient(to right, #fff ${volume * 100}%, rgba(255,255,255,0.25) ${volume * 100}%)`,
                 }}
               />
             </div>
-
-            <span className="video-player__time">
-              {formatTime(progress)} / {formatTime(duration)}
-            </span>
           </div>
 
           <div className="video-player__right">
@@ -390,19 +491,20 @@ const VideoPlayer = ({
                 onClick={toggleCaptions}
                 title="Toggle captions"
               >
-                <Captions size={20} />
+                <Captions size={19} />
               </button>
             )}
 
             <button
               className="video-player__btn video-player__next"
-              onClick={() => handleNextEpisode()}
+              onClick={onNextEpisode}
             >
-              <SkipForward size={18} /> Next Episode
+              <SkipForward size={17} />
+              <span>Next Episode</span>
             </button>
 
             <button className="video-player__btn" onClick={toggleFullscreen}>
-              {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+              {isFullscreen ? <Minimize size={19} /> : <Maximize size={19} />}
             </button>
           </div>
         </div>
