@@ -21,7 +21,7 @@ const uploadOnCloudinary = async (fileBuffer, mimetype, folder = "shows") => {
       options.resource_type = "video";
     }
 
-    const result = await cloudinary.uploader.upload(base64String, options);
+    const result = await cloudinary.uploader.upload_large(base64String, options);
 
     return result.secure_url;
   } catch (error) {
