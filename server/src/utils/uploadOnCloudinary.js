@@ -12,6 +12,8 @@ const uploadOnCloudinary = async (fileBuffer, mimetype, folder = "shows") => {
 
     if (mimetype && mimetype.startsWith("video/")) {
       options.resource_type = "video";
+      options.chunk_size = 20000000; // 20MB chunks, required for large video uploads via upload_large
+      options.timeout = 600000; // 10 minutes, prevents timeout on big files
     } else if (
       mimetype === "text/plain" ||
       mimetype === "application/octet-stream" ||
