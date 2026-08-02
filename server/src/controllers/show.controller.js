@@ -166,15 +166,15 @@ export const deleteShow = async (req, res) => {
 export const getAllShow = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 50;
     const skip = (page - 1) * limit;
-
+ 
     const shows = await Show.find()
       .populate("genre")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
-
+ 
     const total = await Show.countDocuments();
 
     return res.status(200).json({

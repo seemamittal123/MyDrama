@@ -11,7 +11,7 @@ const useGetAllShows = () => {
   useEffect(() => {
     const fetchAllShows = async () => {
       try {
-        const { data } = await axios.get(`${server_Url}/api/shows/all/shows?page=1&limit=20`, { withCredentials: true });
+        const { data } = await axios.get(`${server_Url}/api/shows/all/shows?page=1&limit=50`, { withCredentials: true });
         dispatch(setAllShows(data.shows));
       } catch (error) {
         console.log(error.response);

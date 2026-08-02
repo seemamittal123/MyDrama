@@ -165,7 +165,7 @@
 // Series grid
 .series-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;
 
   .next-btn {
@@ -205,7 +205,8 @@
         background: rgba(0, 0, 0, 0.85);
       }
     }
-     &__bin-btn {
+
+    &__bin-btn {
       position: absolute;
       top: 8px;
       right: 40px;
@@ -298,6 +299,10 @@
       font-size: 0.75rem;
       color: #9ca3af;
     }
+  }
+
+  @media (max-width:448px) {
+      grid-template-columns: repeat(2, 1fr);
   }
 
 }
