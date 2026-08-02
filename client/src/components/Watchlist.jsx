@@ -29,7 +29,7 @@ const Watchlist = () => {
                   watchList?.map((show) => (
                     <div onClick={() => handleShow(show.show_id._id)}>
                       <ShowCard show={show.show_id} key={show.title || show._id} />
-                    </div>
+                    </div> 
                   ))
                 }
               </div>

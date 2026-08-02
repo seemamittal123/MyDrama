@@ -1,6 +1,6 @@
+import mongoose from "mongoose";
 import Episode from "../models/episode.js";
 import Show from "../models/show.js";
-import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
 
 export const createEpisode = async (req, res) => {
   try {
@@ -9,30 +9,19 @@ export const createEpisode = async (req, res) => {
       episode_number,
       title,
       video_url,
+      thumbnail_url,
+      subtitle_url,
       duration,
       release_date,
     } = req.body;
 
-    if (!show_id) {
-      return res.status(400).json({ message: "show_id is required" });
+    if (!show_id || !mongoose.Types.ObjectId.isValid(show_id)) {
+      return res.status(400).json({ message: "Valid show_id is required" });
     }
     if (!episode_number) {
       return res.status(400).json({ message: "episode_number is required" });
     }
-
-    let videoUrlValue = video_url;
-
-    if (req.files && req.files.video) {
-      const videoFile = req.files.video[0];
-      videoUrlValue = await uploadOnCloudinary(
-        videoFile.buffer,
-        videoFile.mimetype,
-        "episodes/videos",
-        "video",
-      );
-    }
-
-    if (!videoUrlValue) {
+    if (!video_url) {
       return res.status(400).json({ message: "video_url is required" });
     }
 
@@ -41,64 +30,54 @@ export const createEpisode = async (req, res) => {
       return res.status(404).json({ message: "Show not found" });
     }
 
-    let thumbnailUrl = "";
-    if (req.files && req.files.thumbnail) {
-      const thumbFile = req.files.thumbnail[0];
-      thumbnailUrl = await uploadOnCloudinary(
-        thumbFile.buffer,
-        thumbFile.mimetype,
-        "episodes/thumbnails",
-      );
-    }
-
-    let subtitleUrl = "";
-    if (req.files && req.files.subtitle) {
-      const subFile = req.files.subtitle[0];
-      subtitleUrl = await uploadOnCloudinary(
-        subFile.buffer,
-        subFile.mimetype,
-        "episodes/subtitles",
-      );
-    }
-
+    // Ab koi file upload yaha nahi ho raha - sirf URLs save ho rahe hain
+    // Isliye ye request milliseconds me complete hogi
     const episode = await Episode.create({
       show_id,
       episode_number,
       title,
-      video_url: videoUrlValue,
-      thumbnail_url: thumbnailUrl,
-      subtitle_url: subtitleUrl,
+      video_url,
+      thumbnail_url: thumbnail_url || "",
+      subtitle_url: subtitle_url || "",
       duration,
       release_date,
     });
 
     await Show.findByIdAndUpdate(show_id, {
-      $inc: {
-        total_episodes: 1,
-      },
+      $inc: { total_episodes: 1 },
     });
 
     return res
       .status(201)
       .json({ success: true, episode, message: "episode created" });
   } catch (error) {
+    console.error("=== RAW CREATE EPISODE ERROR ===", error);
+
     if (error.code === 11000) {
       return res.status(400).json({
         message: "This episode number already exists for this show",
       });
     }
 
+    const message = error?.message || error?.error?.message || "Unknown error";
     return res
       .status(500)
-      .json({ message: `Create episode error: ${error.message}` });
+      .json({ message: `Create episode error: ${message}` });
   }
 };
 
 export const editEpisode = async (req, res) => {
   try {
     const { id } = req.params;
-    const { episode_number, title, video_url, duration, release_date } =
-      req.body;
+    const {
+      episode_number,
+      title,
+      video_url,
+      thumbnail_url,
+      subtitle_url,
+      duration,
+      release_date,
+    } = req.body;
 
     if (!id) {
       return res.status(400).json({ message: "Episode id is required" });
@@ -113,6 +92,8 @@ export const editEpisode = async (req, res) => {
     if (episode_number) updateData.episode_number = episode_number;
     if (title) updateData.title = title;
     if (video_url) updateData.video_url = video_url;
+    if (thumbnail_url) updateData.thumbnail_url = thumbnail_url;
+    if (subtitle_url) updateData.subtitle_url = subtitle_url;
     if (duration) updateData.duration = duration;
     if (release_date) updateData.release_date = release_date;
 
@@ -170,11 +151,11 @@ export const getEpisodesByShow = async (req, res) => {
 export const getEpisode = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId =req.userId;
+    const userId = req.userId;
     const episode = await Episode.findById(id);
 
     const show = await Show.findById(episode.show_id);
-    
+
     if (!show.viewedBy.includes(userId)) {
       show.views += 1;
       show.viewedBy.push(userId);

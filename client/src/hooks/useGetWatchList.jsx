@@ -17,9 +17,8 @@ const useGetWatchList = () => {
         console.log(error.response);
       }
     }
-    if (user?._id)
-      fetchUserWatchList();
-  }, [dispatch])
+    if (user?._id) fetchUserWatchList();
+  }, [dispatch, user?._id])
 }
 
 export default useGetWatchList

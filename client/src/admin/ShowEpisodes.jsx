@@ -59,7 +59,7 @@ const ShowEpisodes = () => {
   }, [showId])
 
   useEffect(() => {
-    const filterShow = allShows.find((show) => show._id.toString() == showId.toString())
+    const filterShow = allShows.find((show) => show._id?.toString() == showId.toString())
     setShow(filterShow);
   }, [allShows, showId])
 

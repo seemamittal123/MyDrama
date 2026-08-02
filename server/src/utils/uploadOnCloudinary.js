@@ -1,4 +1,5 @@
 import cloudinary from "../config/cloudinary.js";
+import { Readable } from "stream";
 
 const uploadOnCloudinary = async (fileBuffer, mimetype, folder = "shows") => {
   try {
@@ -6,15 +7,13 @@ const uploadOnCloudinary = async (fileBuffer, mimetype, folder = "shows") => {
       throw new Error("No file data provided");
     }
 
-    const base64String = `data:${mimetype};base64,${fileBuffer.toString("base64")}`;
+    const options = {
+      folder,
+      timeout: 120000, // 2 minutes timeout
+    };
 
-    const options = { folder };
-
-    if (mimetype && mimetype.startsWith("video/")) {
-      options.resource_type = "video";
-      options.chunk_size = 20000000; // 20MB chunks, required for large video uploads via upload_large
-      options.timeout = 600000; // 10 minutes, prevents timeout on big files
-    } else if (
+    if (
+      (mimetype && mimetype.startsWith("video/")) ||
       mimetype === "text/plain" ||
       mimetype === "application/octet-stream" ||
       mimetype === "application/x-subrip" ||
@@ -23,9 +22,20 @@ const uploadOnCloudinary = async (fileBuffer, mimetype, folder = "shows") => {
       options.resource_type = "video";
     }
 
-    const result = await cloudinary.uploader.upload_large(base64String, options);
+    // Return a Promise for Stream Upload
+    return new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        options,
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result.secure_url);
+        }
+      );
 
-    return result.secure_url;
+      // Buffer ko Readable Stream me convert karke Cloudinary ko bhej rahe hain
+      Readable.from(fileBuffer).pipe(uploadStream);
+    });
+
   } catch (error) {
     console.error("Cloudinary upload error:", error.message);
     throw error;

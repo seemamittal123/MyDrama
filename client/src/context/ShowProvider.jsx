@@ -3,7 +3,10 @@ import { useSelector } from 'react-redux';
 import { server_Url } from '../App';
 import axios from 'axios';
 
-export const showContext = createContext();
+export const showContext = createContext({
+  showDetails: {}, episodes: [], toggle: false,
+  handleShow: () => {}, fetchEpisodes: () => {}, onClose: () => {}
+});
 
 const ShowProvider = ({ children }) => {
   const [showDetails, setShowDetails] = useState({});

@@ -7,7 +7,7 @@ export const createOrDeleteWatchList = async (req, res) => {
     if (!show_id) {
       return res.status(400).json({ message: "SHow id is required" });
     }
-    const aleradyInWatchlist = await Watchlist.findOne({ show_id });
+    const aleradyInWatchlist = await Watchlist.findOne({ user_id: userId, show_id });
     if (aleradyInWatchlist) {
       await Watchlist.findByIdAndDelete(aleradyInWatchlist._id);
       return res

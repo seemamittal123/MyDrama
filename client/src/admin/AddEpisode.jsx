@@ -6,8 +6,43 @@ import { server_Url } from "../App";
 import toast from "react-hot-toast";
 import loader from '../assets/loader.svg';
 
+// Cloudinary se signature lo (backend se, secure)
+const getSignature = async (folder) => {
+  const { data } = await axios.post(
+    `${server_Url}/api/cloudinary/signature`,
+    { folder },
+    { withCredentials: true }
+  );
+   console.log("Signature response:", data);
+  return data;
+};
+
+// File ko seedha Cloudinary ko upload karo (server ko bypass karke)
+const uploadToCloudinaryDirect = async (file, folder, resourceType, onProgress) => {
+  const { signature, timestamp, cloudName, apiKey } = await getSignature(folder);
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("api_key", apiKey);
+  formData.append("timestamp", timestamp);
+  formData.append("signature", signature);
+  formData.append("folder", folder);
+
+  const { data } = await axios.post(
+    `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
+    formData,
+    {
+      onUploadProgress: onProgress
+        ? (e) => onProgress(Math.round((e.loaded * 100) / e.total))
+        : undefined,
+    }
+  );
+
+  return data.secure_url;
+};
+
 const AddEpisode = () => {
-  const { epId } = useParams(); 
+  const { epId } = useParams();
   const isEditMode = Boolean(epId);
 
   const [searchParams] = useSearchParams();
@@ -35,6 +70,7 @@ const AddEpisode = () => {
 
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(isEditMode);
+  const [uploadProgress, setUploadProgress] = useState(0); // video ka progress dikhane ke liye
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -78,15 +114,13 @@ const AddEpisode = () => {
           show_id: ep.show_id,
           episode_number: ep.episode_number || "",
           title: ep.title || "",
-          release_date: ep.release_date
-            ? ep.release_date.slice(0, 10) 
-            : "",
+          release_date: ep.release_date ? ep.release_date.slice(0, 10) : "",
           durationMinutes: minutes || "",
           durationSeconds: seconds || "",
         });
 
         setVideoUrl(ep.video_url || "");
-        setVideoSource("url"); 
+        setVideoSource("url");
         setThumbnailPreview(ep.thumbnail_url || null);
         setExistingSubtitleUrl(ep.subtitle_url || "");
       } catch (error) {
@@ -109,35 +143,61 @@ const AddEpisode = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    const minutes = parseInt(form.durationMinutes || "0", 10);
-    const seconds = parseInt(form.durationSeconds || "0", 10);
-    const totalDurationSeconds = minutes * 60 + seconds;
-
-    const formData = new FormData();
-    formData.append("show_id", form.show_id);
-    formData.append("episode_number", form.episode_number);
-    formData.append("title", form.title);
-    formData.append("release_date", form.release_date);
-    formData.append("duration", totalDurationSeconds);
-
-    if (videoSource === "upload" && videoFile) {
-      formData.append("video", videoFile);
-    } else if (videoSource === "url" && videoUrl) {
-      formData.append("video_url", videoUrl);
-    }
-
-    if (subtitleFile) formData.append("subtitle", subtitleFile);
-    if (thumbnailFile) formData.append("thumbnail", thumbnailFile);
+    setUploadProgress(0);
 
     try {
+      const minutes = parseInt(form.durationMinutes || "0", 10);
+      const seconds = parseInt(form.durationSeconds || "0", 10);
+      const totalDurationSeconds = minutes * 60 + seconds;
+
+      // Step 1: Video URL decide karo (upload ya direct URL)
+      let finalVideoUrl = videoUrl;
+      if (videoSource === "upload" && videoFile) {
+        toast.loading("Uploading video...", { id: "upload-toast" });
+        finalVideoUrl = await uploadToCloudinaryDirect(
+          videoFile,
+          "episodes/videos",
+          "video",
+          setUploadProgress
+        );
+      }
+
+      if (!finalVideoUrl && !isEditMode) {
+        toast.error("Video is required");
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Thumbnail aur subtitle PARALLEL me upload karo (agar diye gaye hain)
+      const [finalThumbnailUrl, finalSubtitleUrl] = await Promise.all([
+        thumbnailFile
+          ? uploadToCloudinaryDirect(thumbnailFile, "episodes/thumbnails", "image")
+          : Promise.resolve(undefined),
+        subtitleFile
+          ? uploadToCloudinaryDirect(subtitleFile, "episodes/subtitles", "raw")
+          : Promise.resolve(undefined),
+      ]);
+
+      toast.dismiss("upload-toast");
+
+      // Step 3: Ab sirf URLs backend ko bhejo - ye instant hoga
+      const payload = {
+        show_id: form.show_id,
+        episode_number: form.episode_number,
+        title: form.title,
+        release_date: form.release_date,
+        duration: totalDurationSeconds,
+        video_url: finalVideoUrl,
+        ...(finalThumbnailUrl && { thumbnail_url: finalThumbnailUrl }),
+        ...(finalSubtitleUrl && { subtitle_url: finalSubtitleUrl }),
+      };
+
       const endpoint = isEditMode
         ? `${server_Url}/api/episodes/edit/${epId}`
         : `${server_Url}/api/episodes/create`;
 
-      const { data } = await axios.post(endpoint, formData, {
+      const { data } = await axios.post(endpoint, payload, {
         withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
       });
 
       if (data.success) {
@@ -147,10 +207,12 @@ const AddEpisode = () => {
         }
       }
     } catch (error) {
-      console.log(error.response);
+      console.log(error.response || error);
+      toast.dismiss("upload-toast");
       toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -180,7 +242,6 @@ const AddEpisode = () => {
 
         <div className="add-episode__card">
           <form onSubmit={handleSubmit}>
-            {/* Show & Position */}
             <div className="form-section">
               <h3 className="form-section__title">Show Details</h3>
               <div className="field">
@@ -204,7 +265,6 @@ const AddEpisode = () => {
               </div>
             </div>
 
-            {/* Episode Info */}
             <div className="form-section">
               <h3 className="form-section__title">Episode Information</h3>
 
@@ -264,7 +324,6 @@ const AddEpisode = () => {
               </div>
             </div>
 
-            {/* Media */}
             <div className="form-section">
               <h3 className="form-section__title">Media</h3>
 
@@ -326,6 +385,19 @@ const AddEpisode = () => {
                     className="field__input"
                     required={!isEditMode}
                   />
+                )}
+
+                {/* Video upload progress bar */}
+                {loading && videoSource === "upload" && videoFile && (
+                  <div className="upload-progress">
+                    <div
+                      className="upload-progress__bar"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                    <span className="upload-progress__label">
+                      {uploadProgress}% uploaded
+                    </span>
+                  </div>
                 )}
               </div>
 
@@ -392,7 +464,9 @@ const AddEpisode = () => {
               </button>
               <button type="submit" className="btn btn--primary" disabled={loading}>
                 {loading
-                  ? "Saving..."
+                  ? uploadProgress > 0
+                    ? `Uploading ${uploadProgress}%...`
+                    : "Saving..."
                   : isEditMode
                   ? "Update Episode"
                   : "Add Episode"}
