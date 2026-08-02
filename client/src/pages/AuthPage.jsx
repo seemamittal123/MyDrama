@@ -146,8 +146,8 @@ const AuthPage = () => {
                 <input type="checkbox" className="auth-extras__checkbox" />
                 Remember me
               </label>
-              <button type="button" className="auth-extras__help">
-                Need help?
+              <button type="button" className="auth-extras__help" onClick={()=>navigate('/forgot-password')}>
+                Forgot password?
               </button>
             </div>
           )}

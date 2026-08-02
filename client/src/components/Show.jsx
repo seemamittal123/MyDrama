@@ -20,7 +20,7 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
 
 
   const goToResume = async () => {
-    if (user?.id) {
+    if (user?._id) {
       try {
         const { data } = await axios.get(
           `${server_Url}/api/users/watch-history/resume/${show._id}`,
