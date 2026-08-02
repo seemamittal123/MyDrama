@@ -11,7 +11,7 @@ const useGetLatestShows = () => {
   useEffect(() => {
     const fetchUserWatchList = async () => {
       try {
-        const { data } = await axios.get(`${server_Url}/api/shows/latest`, { withCredentials: true });
+        const { data } = await axios.get(`${server_Url}/api/shows/latest-show`, { withCredentials: true });
         dispatch(setLatest(data.shows))
       } catch (error) {
         console.log(error.response);

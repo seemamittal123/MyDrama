@@ -22,10 +22,8 @@ const Explore = () => {
           <div className="shows-wrapper">
             {
               loading ?
-                <div className='spinner'>
-                  <div className="empty">
+                <div className='spinner2'>
                     <img src={loader} alt="" />
-                  </div>
                 </div>
                 : allShows?.map((show) => (
                   <div key={show?.id || show?.title} onClick={(e) => goToShow(e, show._id)}>

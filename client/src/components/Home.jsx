@@ -48,7 +48,7 @@ const Home = () => {
             <Slider data={continueWatchShows} heading={"continue-watching"} handleShow={handleShow} loading={loading} />
           </div>
           <div className="slider-wrapper">
-            <Slider data={latest} heading={"Latest-show"} handleShow={handleShow} loading={loading} />
+            <Slider data={latest} heading={"latest-show"} handleShow={handleShow} loading={loading} />
           </div>
           <div className="slider-wrapper">
             <Slider data={tranding} heading={"tranding-show"} handleShow={handleShow} loading={loading} />

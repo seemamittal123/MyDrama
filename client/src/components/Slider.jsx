@@ -11,7 +11,7 @@ const Slider = ({ data = [], heading, handleShow, loading }) => {
 
   return (
     <>
-      <h2 className="section-title">{heading}</h2>
+      <h2 className="section-title" onClick={()=>naviagte(heading)}>{heading}</h2>
       {loading ?
         <div className='slider-spinner'>
           <img src={loader} alt="" />

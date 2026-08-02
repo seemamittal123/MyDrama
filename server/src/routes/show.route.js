@@ -39,9 +39,9 @@ show.delete("/show/delete/:id", isAuth, deleteShow);
 show.get("/all/shows", getAllShow);
 show.get("/search/shows", searchShow);
 show.get("/filter/shows", filterShows);
-show.get("/latest", getLatestShows);
-show.get("/trending", getTrendingShows);
-show.get("/popular", getPopularShows);
+show.get("/latest-show", getLatestShows);
+show.get("/tranding-show", getTrendingShows);
+show.get("/popular-show", getPopularShows);
 show.post("/like-dislike", isAuth, toggleLike);
 show.get('/check-like/:show_id',isAuth,checkLikeStatus)
 

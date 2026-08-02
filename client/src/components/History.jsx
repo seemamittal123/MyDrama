@@ -24,10 +24,8 @@ const History = () => {
         <h1>History </h1>
         {
           loading ?
-            <div className='spinner'>
-              <div className="empty">
+            <div className='spinner2'>
                 <img src={loader} alt="" />
-              </div>
             </div> :
             continueWatchShows.length > 0 ?
               <div className="shows-wrapper">

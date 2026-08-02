@@ -17,7 +17,7 @@ const Watchlist = () => {
         <h1>Watchlist</h1>
         {
           loading ?
-            <div className='spinner'>
+            <div className='spinner2'>
               <img src={loader} alt="Loading" />
             </div>
             :

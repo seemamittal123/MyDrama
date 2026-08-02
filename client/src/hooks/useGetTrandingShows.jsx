@@ -11,7 +11,7 @@ const useGetTrandingShows = () => {
   useEffect(() => {
     const fetchUserWatchList = async () => {
       try {
-        const { data } = await axios.get(`${server_Url}/api/shows/trending`, { withCredentials: true });
+        const { data } = await axios.get(`${server_Url}/api/shows/tranding-show`, { withCredentials: true });
         dispatch(setTranding(data.shows))
       } catch (error) {
         console.log(error.response);

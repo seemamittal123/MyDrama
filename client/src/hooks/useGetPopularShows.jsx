@@ -10,7 +10,7 @@ const useGetPopularShows = () => {
   useEffect(() => {
     const fetchUserWatchList = async () => {
       try {
-        const { data } = await axios.get(`${server_Url}/api/shows/popular`, { withCredentials: true });
+        const { data } = await axios.get(`${server_Url}/api/shows/popular-show`, { withCredentials: true });
         dispatch(setPopular(data.shows))
       } catch (error) {
         console.log(error.response);

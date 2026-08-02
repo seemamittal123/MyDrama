@@ -13,6 +13,8 @@ import Layout from "../pages/Layout";
 import Watchlist from "../components/Watchlist";
 import History from "../components/History";
 import EpisodePlayerPage from "../components/EpisodePlayPage";
+import ListShows from "../components/ListShows";
+import ContinueWatch from "../components/ContinueWatch";
 
 const router = createBrowserRouter([{
   path: '/',
@@ -76,11 +78,19 @@ const router = createBrowserRouter([{
           path: "history",
           element: <History />
         },
+        {
+          path: ":heading",
+          element: <ListShows />
+        },
+        {
+          path: "continue-watching",
+          element: <ContinueWatch />
+        },
       ]
     },
     {
-      path:"Drama/:slug/episode/:id",
-      element:<EpisodePlayerPage/>
+      path: "Drama/:slug/episode/:id",
+      element: <EpisodePlayerPage />
     }
   ]
 }])
