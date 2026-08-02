@@ -24,6 +24,9 @@ const Header = ({ setSearchToggle }) => {
       console.log(error.response);
     }
   }
+  const closeMenu=()=>{
+    setToggle(false)
+  }
 
   return (
     <div className="navbar">
@@ -32,26 +35,26 @@ const Header = ({ setSearchToggle }) => {
           <img src={logo} alt="" />
         </div>
         <ul type="none" className={toggle ? "navbar__list navbar__open" : "navbar__list"}>
-          <li className="navbar__item">
-            <Link to="/">Home</Link>
+          <li className="navbar__item" onClick={closeMenu}>
+            <Link to="/" >Home</Link>
           </li>
-          <li className="navbar__item">
-            <Link to="/explore">Explore</Link>
+          <li className="navbar__item" onClick={closeMenu}>
+            <Link to="/explore" >Explore</Link>
           </li>
           {user && (
             <>
               {
                 user?.role =="admin" &&
-                <li className="navbar__item"><Link to="/admin" className="navbar__admin-link">Admin</Link>
+                <li className="navbar__item" onClick={closeMenu}><Link to="/admin" className="navbar__admin-link" >Admin</Link>
                 </li>
               }
-              <li className="navbar__item"><Link to="/watch-list" className="navbar__admin-link">Watch list</Link>
+              <li className="navbar__item" onClick={closeMenu}><Link to="/watch-list" className="navbar__admin-link">Watch list</Link>
               </li>
-              <li className="navbar__item"><Link to="/history" className="navbar__admin-link">History</Link>
+              <li className="navbar__item" onClick={closeMenu}><Link to="/history" className="navbar__admin-link">History</Link>
               </li>
             </>
           )}
-          <li className="navbar__item">
+          <li className="navbar__item" onClick={closeMenu}>
             <button className="navbar__search-btn" onClick={() => setSearchToggle(true)}>
               <FaSearch />
               Search
@@ -66,7 +69,7 @@ const Header = ({ setSearchToggle }) => {
           )}
         </ul>
 
-        <button onClick={() => setToggle(!toggle)} className='sm_btn'>
+        <button onClick={()=>setToggle(!toggle)} className='sm_btn'>
           {toggle ? <RxCross2 /> : <RxDotsVertical />}
         </button>
       </div>

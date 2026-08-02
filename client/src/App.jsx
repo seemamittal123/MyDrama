@@ -27,7 +27,7 @@ const App = () => {
   return (
     <>
       <Outlet />
-      <Toaster />
+      <Toaster style={{ zIndex: 999999 }}/>
     </>
   )
 }
