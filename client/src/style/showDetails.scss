@@ -349,167 +349,201 @@
   }
 
   // ---------------- More like this ----------------
-  &__related-grid {
-    display: grid;
-    gap: 15px;
+ &__related-grid {
+  display: grid;
+  gap: 15px;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media (max-width: 748px) {
     grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 448px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 
-    @media (max-width: 748px) {
-      grid-template-columns: repeat(3, 1fr);
-    }
-    @media (max-width: 448px) {
-      grid-template-columns: repeat(2, 1fr);
+  .show-card {
+    background: #2d2d2d;
+    border-radius: 8px;
+    overflow: hidden;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    transition: 0.3s;
+    cursor: pointer;
+
+    &:hover {
+      .play-btn {
+        opacity: 1;
+        transform: scale(1);
+      }
+      img {
+        transform: scale(1.08);
+      }
     }
 
-    .show-card {
-      background: #2d2d2d;
-      border-radius: 8px;
+    &__image {
+      position: relative;
+      height: 180px;
       overflow: hidden;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      transition: 0.3s;
-      cursor: pointer;
 
-      &:hover {
-
-        .play-btn {
-          opacity: 1;
-          transform: scale(1);
-        }
-
-        img {
-          transform: scale(1.08);
-        }
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: 0.4s;
+        display: block;
       }
 
-      &__image {
-        position: relative;
-        height: 180px;
-        overflow: hidden;
-
-        img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: 0.4s;
-          display: block;
-        }
-
-        @media (max-width: 748px) {
-          height: 100px;
-        }
-
-      }
-
-      &__overlay {
+      /* NEW: bottom gradient so any text/badge over the poster stays readable */
+      &::after {
+        content: "";
         position: absolute;
         inset: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 55%);
+        pointer-events: none;
       }
 
-      .play-btn {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        border: 2px solid #fff;
-        background: rgba(0, 0, 0, 0.4);
-        color: white;
-        font-size: 32px;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        opacity: 0;
-        transform: scale(0.8);
-        transition: 0.3s;
-
-        svg {
-          margin-left: 4px;
-        }
-      }
-
-      .season-tag {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        font-size: 16px;
-        font-weight: 600;
-        color: white;
-      }
-
-      &__content {
-        padding: 10px 10px 0;
-      }
-
-      &__top {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-      }
-
-      .match {
-        display: block;
-        color: #46d369;
-        font-weight: 700;
-        margin-bottom: 12px;
-      }
-
-      .meta {
-        display: flex;
-        gap: 14px;
-        align-items: center;
-        margin-bottom: 20px;
-      }
-
-      .rating {
-        border: 1px solid #999;
-        padding: 4px 10px;
-        font-size: 16px;
-        color: #ddd;
-      }
-
-      .year {
-        font-size: 16px;
-        color: #ddd;
-        font-weight: 500;
-      }
-
-      .add-btn {
-        border: 2px solid #8c8c8c;
-        background: transparent;
-        color: white;
-        font-size: 24px;
-        cursor: pointer;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 5px;
-
-        svg {
-          width: 20px;
-          height: 20px;
-        }
+      @media (max-width: 748px) {
+        height: 100px;
       }
     }
 
-    @media (max-width: 768px) {
-      grid-template-columns: repeat(2, 1fr);
+    &__overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+    }
 
-      .show-card {
-        width: 100%;
+    .play-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: rgba(0, 0, 0, 0.4);
+      color: white;
+      font-size: 32px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: 0.3s;
 
-        .add-btn {
-          svg {
-            width: 10px;
-            height: 10px;
-          }
-        }
+      svg {
+        margin-left: 4px;
+      }
+
+      @media (max-width: 748px) {
+        width: 34px;
+        height: 34px;
+        font-size: 18px;
+      }
+    }
+
+    /* FIXED: pill background so the badge never gets lost or clashes against the poster */
+    .season-tag {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 3px 9px;
+      border-radius: 20px;
+      backdrop-filter: blur(2px);
+
+      @media (max-width: 748px) {
+        font-size: 10px;
+        padding: 2px 7px;
+        top: 6px;
+        right: 6px;
+      }
+    }
+
+    &__content {
+      padding: 10px 10px 12px;
+    }
+
+    &__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .match {
+      display: block;
+      color: #46d369;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 8px;
+
+      @media (max-width: 448px) {
+        font-size: 12px;
+      }
+    }
+
+    .meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 0;
+    }
+
+    .rating {
+      border: 1px solid #999;
+      padding: 3px 8px;
+      font-size: 11px;
+      color: #ddd;
+      white-space: nowrap;
+
+      @media (max-width: 448px) {
+        font-size: 10px;
+        padding: 2px 6px;
+      }
+    }
+
+    .year {
+      font-size: 13px;
+      color: #ddd;
+      font-weight: 500;
+
+      @media (max-width: 448px) {
+        font-size: 12px;
+      }
+    }
+
+    .add-btn {
+      border: 2px solid #8c8c8c;
+      background: transparent;
+      color: white;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      flex-shrink: 0;
+
+      svg {
+        width: 14px;
+        height: 14px;
       }
     }
   }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
 
 
