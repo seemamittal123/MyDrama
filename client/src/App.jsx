@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import useGetHistory from './hooks/useGetHistory';
@@ -9,7 +9,7 @@ import useGetTrandingShows from './hooks/useGetTrandingShows';
 import useGetPopularShows from './hooks/useGetPopularShows';
 import './style/index.scss';
 import useGetAllShows from './hooks/useGetAllShows';
-import useGetContinueWatch from './hooks/useGetContinueWatch'; 
+import useGetContinueWatch from './hooks/useGetContinueWatch';
 export const server_Url = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 
 const App = () => {
@@ -23,11 +23,10 @@ const App = () => {
   useGetHistory();
   useGetContinueWatch();
 
-
   return (
     <>
       <Outlet />
-      <Toaster style={{ zIndex: 999999 }}/>
+      <Toaster style={{ zIndex: 999999 }} />
     </>
   )
 }

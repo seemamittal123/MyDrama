@@ -194,10 +194,14 @@ const AddSeries = () => {
                 <input
                   type="text"
                   name="cast"
+                  id="cast-field"
                   value={form.cast}
                   onChange={handleChange}
                   placeholder="Enter cast (comma separated)"
                   className="field__input"
+                  autoComplete="off"
+                  data-lpignore="true"
+                  data-form-type="other"
                   required
                 />
               </div>

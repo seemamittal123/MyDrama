@@ -15,13 +15,14 @@
       position: absolute;
       left: 70px;
       bottom: 40px;
-      max-width: 350px;
+      width: 350px;
 
       @media (max-width:748px) {
         font-size: 14px;
         left: 10px;
         bottom: 0;
         width: 100%;
+        padding: 15px;
       }
 
       .title {

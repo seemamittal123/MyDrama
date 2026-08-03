@@ -7,7 +7,10 @@ export const createOrDeleteWatchList = async (req, res) => {
     if (!show_id) {
       return res.status(400).json({ message: "SHow id is required" });
     }
-    const aleradyInWatchlist = await Watchlist.findOne({ user_id: userId, show_id });
+    const aleradyInWatchlist = await Watchlist.findOne({
+      user_id: userId,
+      show_id,
+    });
     if (aleradyInWatchlist) {
       await Watchlist.findByIdAndDelete(aleradyInWatchlist._id);
       return res
@@ -31,8 +34,10 @@ export const createOrDeleteWatchList = async (req, res) => {
 export const getWatchList = async (req, res) => {
   try {
     const userId = req.userId;
-    const watchlist = await Watchlist.find({ user_id: userId }).populate("show_id");
-    return res.status(201).json({ success: true, watchlist});
+    const watchlist = await Watchlist.find({ user_id: userId })
+      .populate("show_id")
+      .sort({ createdAt: -1 });
+    return res.status(201).json({ success: true, watchlist });
   } catch (error) {
     return res
       .status(500)

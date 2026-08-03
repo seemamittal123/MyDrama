@@ -1,15 +1,22 @@
 // AddSeries.scss
 
 .add-series {
-  min-height: 100vh;
+  position: relative;
+  min-height: 100dvh;
   width: 100%;
   background-color: #0a0a0a;
   color: #fff;
-  padding: 6rem 1.5rem 4rem;
+  padding: 6rem clamp(0.75rem, 3vw, 1.5rem) 2rem;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
 
   &__container {
+    width: 100%;
     max-width: 48rem;
     margin: 0 auto;
+    padding-inline: 0;
+    box-sizing: border-box;
   }
 
   &__header {
@@ -117,7 +124,7 @@
   }
 
   &__textarea {
-    resize: vertical;
+    resize: none;
     min-height: 6rem;
     font-family: inherit;
   }
@@ -360,12 +367,12 @@
 
 }
 
-@media (max-width:748px) {
+@media (max-width: 748px) {
   .add-series {
-    padding: 20px;
+    padding:20px;
   }
 
   .status-group {
-    height: 100px;
+    min-height: 0;
   }
 }

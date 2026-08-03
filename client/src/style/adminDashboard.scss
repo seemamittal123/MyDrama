@@ -304,6 +304,9 @@
   @media (max-width:448px) {
       grid-template-columns: repeat(2, 1fr);
   }
+   @media (min-width:448px) and (max-width:748px) {
+      grid-template-columns: repeat(3, 1fr);
+  }
 
 }
 
