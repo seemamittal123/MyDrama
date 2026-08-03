@@ -105,6 +105,9 @@ const ShowCard = ({ show, key }) => {
 
         <div className="expanded-content">
           <div className="expanded-meta-row">
+            <h1 className="name">{show.title}</h1>
+          </div>
+          <div className="expanded-meta-row">
             {show.completedEpisodesCount !== undefined ? (
               <>
                 <span className="match-score">{show.completedEpisodesCount}/{show.totalEpisodesCount} Watched</span>
