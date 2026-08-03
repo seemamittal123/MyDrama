@@ -12,7 +12,7 @@ const Home = () => {
   const [dramas, setDramas] = useState({});
 
   const { handleShow } = useContext(showContext);
- 
+
   const continueWatchShows = continueWatch?.map(item => ({
     ...item.show_id,
     completedEpisodesCount: item.completedEpisodesCount,
@@ -34,6 +34,7 @@ const Home = () => {
     fetchDramas("korean");
     fetchDramas("chinese");
     fetchDramas("upcomming");
+    fetchDramas("anime");
   }, []);
 
 
@@ -59,8 +60,12 @@ const Home = () => {
             <Slider data={dramas.chinese} heading={"chinese-drama"} handleShow={handleShow} loading={loading} />
           </div>
           <div className="slider-wrapper">
+            <Slider data={dramas.anime} heading={"anime"} handleShow={handleShow} loading={loading} />
+          </div>
+          <div className="slider-wrapper">
             <Slider data={dramas.upcomming} heading={"upcoming-show"} handleShow={handleShow} loading={loading} />
           </div>
+
         </div>
       </div>
     </div>

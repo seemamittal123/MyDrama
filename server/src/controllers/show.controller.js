@@ -218,7 +218,7 @@ export const searchShow = async (req, res) => {
 export const filterShows = async (req, res) => {
   try {
     const { q } = req.query;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 12;
 
     if (!q?.trim()) {
       return res.status(400).json({
@@ -247,7 +247,7 @@ export const filterShows = async (req, res) => {
 
 export const getLatestShows = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 12;
 
     const shows = await Show.find().sort({ createdAt: -1 }).limit(limit);
 
@@ -260,7 +260,7 @@ export const getLatestShows = async (req, res) => {
 
 export const getPopularShows = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 12;
 
     const popularShows = await Like.aggregate([
       {
@@ -297,7 +297,7 @@ export const getPopularShows = async (req, res) => {
 
 export const getTrendingShows = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 12;
 
     const shows = await Show.find().sort({ views: -1 }).limit(limit);
 
