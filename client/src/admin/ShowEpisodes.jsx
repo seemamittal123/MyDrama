@@ -41,7 +41,7 @@ const ShowEpisodes = () => {
   }
 
   const handleEdit = (epId) => {
-     navigate(`/admin/episodes/edit/${epId}`) 
+    navigate(`/admin/episodes/edit/${epId}`)
   };
 
   const handleDelete = async (episodeId) => {
@@ -108,6 +108,7 @@ const ShowEpisodes = () => {
                 <span style={{ textTransform: "capitalize" }}>{show?.country}</span>
                 <span>{episodes?.length} episodes</span>
               </div>
+              <div className="description">{show?.description}</div>
             </div>
           </div>
 
