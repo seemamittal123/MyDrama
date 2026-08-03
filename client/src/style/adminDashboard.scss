@@ -270,7 +270,7 @@
         background-color: #2563eb;
       }
 
-      &--upcomming {
+      &--upcoming {
         background-color: #d97706;
       }
     }
@@ -302,10 +302,11 @@
   }
 
   @media (max-width:448px) {
-      grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
-   @media (min-width:448px) and (max-width:748px) {
-      grid-template-columns: repeat(3, 1fr);
+
+  @media (min-width:448px) and (max-width:748px) {
+    grid-template-columns: repeat(3, 1fr);
   }
 
 }

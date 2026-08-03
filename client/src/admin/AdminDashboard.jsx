@@ -7,7 +7,7 @@ import { server_Url } from "../App";
 import { ImBin } from "react-icons/im";
 import toast from "react-hot-toast";
 
-const STATUS_FILTERS = ["all", "ongoing", "completed", "upcomming"];
+const STATUS_FILTERS = ["all", "ongoing", "completed", "upcoming"];
 
 const AdminDashboard = () => {
 

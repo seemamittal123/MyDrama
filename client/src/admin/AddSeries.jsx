@@ -25,7 +25,7 @@ const GENRE_OPTIONS = [
 
 const COUNTRY_OPTIONS = ["korean", "chinese", "US", "indian", "japanese", "thailand"];
 
-const STATUS_OPTIONS = ["ongoing", "completed", "upcomming"];
+const STATUS_OPTIONS = ["ongoing", "completed", "upcoming"];
 
 const EMPTY_FORM = {
   title: "",

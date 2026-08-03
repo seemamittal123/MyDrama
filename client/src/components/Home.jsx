@@ -33,7 +33,7 @@ const Home = () => {
   useEffect(() => {
     fetchDramas("korean");
     fetchDramas("chinese");
-    fetchDramas("upcomming");
+    fetchDramas("upcoming");
     fetchDramas("anime");
   }, []);
 
@@ -63,7 +63,7 @@ const Home = () => {
             <Slider data={dramas.anime} heading={"anime"} handleShow={handleShow} loading={loading} />
           </div>
           <div className="slider-wrapper">
-            <Slider data={dramas.upcomming} heading={"upcoming-show"} handleShow={handleShow} loading={loading} />
+            <Slider data={dramas.upcoming} heading={"upcoming-show"} handleShow={handleShow} loading={loading} />
           </div>
 
         </div>

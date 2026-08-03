@@ -5,7 +5,6 @@ const initialState = {
   tranding: [],
   popular: [],
   allShows: [],
-  upcomming: [],
   loading: true,
 };
 const showSlice = createSlice({
@@ -32,19 +31,9 @@ const showSlice = createSlice({
       state.tranding = action.payload;
       state.loading = false;
     },
-    setUpcomming: (state, action) => {
-      state.upcomming = action.payload;
-      state.loading = false;
-    },
   },
 });
 
-export const {
-  setLatest,
-  setPopular,
-  setTranding,
-  setNewShows,
-  setAllShows,
-  setUpcomming,
-} = showSlice.actions;
+export const { setLatest, setPopular, setTranding, setNewShows, setAllShows } =
+  showSlice.actions;
 export default showSlice.reducer;

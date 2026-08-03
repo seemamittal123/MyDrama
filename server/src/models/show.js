@@ -68,7 +68,7 @@ const showSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["ongoing", "completed", "upcomming"],
+      enum: ["ongoing", "completed", "upcoming"],
       default: "ongoing",
     },
     total_episodes: {
