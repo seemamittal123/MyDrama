@@ -101,7 +101,7 @@ export const editShow = async (req, res) => {
     if (release_year) updateData.release_year = release_year;
     if (trailer_url) updateData.trailer_url = trailer_url;
     if (session) updateData.session = session;
-    if(cast) updateData.cast = cast;
+    if (cast) updateData.cast = cast;
     if (req.files && req.files.poster) {
       const posterFile = req.files.poster[0];
       updateData.poster_url = await uploadOnCloudinary(
@@ -168,13 +168,13 @@ export const getAllShow = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
     const skip = (page - 1) * limit;
- 
+
     const shows = await Show.find()
       .populate("genre")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
- 
+
     const total = await Show.countDocuments();
 
     return res.status(200).json({
@@ -218,42 +218,50 @@ export const searchShow = async (req, res) => {
 export const filterShows = async (req, res) => {
   try {
     const { q } = req.query;
+    const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
 
     if (!q?.trim()) {
-      return res.status(400).json({
-        message: "Query is required",
-      });
-    } 
+      return res.status(400).json({ message: "Query is required" });
+    }
 
-    const shows = await Show.find({
+    const filter = {
       $or: [
         { genre: { $regex: q, $options: "i" } },
         { country: { $regex: q, $options: "i" } },
         { status: { $regex: q, $options: "i" } },
       ],
-    }).limit(limit);
+    };
 
-    res.status(200).json({
-      success: true,
-      shows,
-    });
+    const shows = await Show.find(filter).skip(skip).limit(limit);
+
+    const totalCount = await Show.countDocuments(filter); // ✅
+    const hasMore = skip + shows.length < totalCount;
+
+    res.json({ success: true, shows, hasMore });
   } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
+    res.status(500).json({ message: error.message });
   }
 };
 
 export const getLatestShows = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
 
-    const shows = await Show.find({ status: { $ne: "upcoming" } })
+    const filter = { status: { $ne: "upcoming" } }; 
+
+    const shows = await Show.find(filter)
       .sort({ createdAt: -1 })
+      .skip(skip)
       .limit(limit);
 
-    return res.status(200).json({ success: true, shows });
+    const totalCount = await Show.countDocuments(filter); 
+    const hasMore = skip + shows.length < totalCount;
+
+    res.json({ success: true, shows, hasMore });
   } catch (error) {
     console.error("Get latest shows error:", error.message);
     return res.status(500).json({ message: `Error: ${error.message}` });
@@ -283,7 +291,9 @@ export const getPopularShows = async (req, res) => {
 
     const result = popularShows
       .map((item) => {
-        const show = shows.find((s) => s._id.toString() === item._id.toString());
+        const show = shows.find(
+          (s) => s._id.toString() === item._id.toString(),
+        );
         return show ? { ...show.toObject(), likeCount: item.likeCount } : null;
       })
       .filter(Boolean)
@@ -298,13 +308,21 @@ export const getPopularShows = async (req, res) => {
 
 export const getTrendingShows = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
 
-    const shows = await Show.find({ status: { $ne: "upcoming" } })
+    const filter = { status: { $ne: "upcoming" } };
+
+    const shows = await Show.find(filter)
       .sort({ views: -1 })
+      .skip(skip)
       .limit(limit);
 
-    return res.status(200).json({ success: true, shows });
+    const totalCount = await Show.countDocuments(filter); // ✅
+    const hasMore = skip + shows.length < totalCount;
+
+    res.json({ success: true, shows, hasMore });
   } catch (error) {
     console.error("Get trending shows error:", error.message);
     return res.status(500).json({ message: `Error: ${error.message}` });
@@ -352,7 +370,6 @@ export const checkLikeStatus = async (req, res) => {
   try {
     const { show_id } = req.params;
     const user_id = req.userId;
-
 
     const liked = await Like.findOne({ user_id, show_id });
 

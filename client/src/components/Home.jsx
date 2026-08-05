@@ -59,7 +59,7 @@ const Home = () => {
           <div className="slider-wrapper">
             <Scroll items={dramas.korean} title={"korean-drama"} loading={loading} />
           </div> <div className="slider-wrapper">
-            <Scroll items={dramas.chinese} title={"Chinese-drama"} loading={loading} />
+            <Scroll items={dramas.chinese} title={"chinese-drama"} loading={loading} />
           </div>
           <div className="slider-wrapper">
             <Scroll items={dramas.anime} title={"anime"} loading={loading} />

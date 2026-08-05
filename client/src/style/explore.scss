@@ -15,6 +15,10 @@
     gap: 15px;
     grid-template-columns: repeat(4, 1fr);
 
+    .show-card-wrapper {
+      width: 100%;
+    }
+
     @media (max-width:748px) {
       grid-template-columns: repeat(2, 1fr);
       padding: 10px 0;
@@ -24,6 +28,15 @@
   .empty {
     min-height: 80vh;
   }
+
+  .more-btn {
+    width: 170px;
+    height: 45px;
+    border-radius: 10px;
+    background: #ffffff69;
+    backdrop-filter: blur(20px);
+    @media (max-width:748px) {
+      width: 100%;
+    }
+  }
 }
-
-

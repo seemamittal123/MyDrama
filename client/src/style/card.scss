@@ -1,7 +1,7 @@
 .show-card-wrapper {
   position: relative;
   cursor: pointer;
-  width: clamp(250px, 26vw, 200px);
+  width: clamp(200px, 26vw, 200px);
   flex: 0 0 clamp(120px, 26vw, 200px);
   transition: transform 0.35s ease, box-shadow 0.35s ease;
 

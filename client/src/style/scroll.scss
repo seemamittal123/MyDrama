@@ -15,7 +15,7 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
   padding: 28px 0;
   color: $ink;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-
+  min-height: 170px;
   &:has(.show-card-wrapper:hover),
   &:has(.show-card-wrapper.is-active) {
     z-index: 20;
@@ -95,7 +95,6 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
   .empty {
     padding: 0 44px;
     color: $ink-dim;
-    font-size: 0.9rem;
   }
 
   .slider-spinner {

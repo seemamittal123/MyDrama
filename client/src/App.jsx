@@ -10,6 +10,7 @@ import useGetPopularShows from './hooks/useGetPopularShows';
 import './style/index.scss';
 import useGetAllShows from './hooks/useGetAllShows';
 import useGetContinueWatch from './hooks/useGetContinueWatch';
+import ScrollToTop from './components/ScrollToTop';
 export const server_Url = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 
 const App = () => {
@@ -25,6 +26,7 @@ const App = () => {
 
   return (
     <>
+      <ScrollToTop />
       <Outlet />
       <Toaster style={{ zIndex: 999999 }} />
     </>
