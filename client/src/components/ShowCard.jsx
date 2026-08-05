@@ -13,6 +13,8 @@ const ShowCard = ({ show, key }) => {
   const [liked, setLiked] = useState(false)
   const menuRef = useRef(null);
   const navigate = useNavigate();
+  
+  
   const goToAddWatchList = async (e, showId) => {
     e.stopPropagation();
     if (user?._id) {
@@ -167,3 +169,4 @@ const ShowCard = ({ show, key }) => {
 };
 
 export default ShowCard;
+

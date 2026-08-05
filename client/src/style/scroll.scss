@@ -1,0 +1,162 @@
+$bg: #0a0a0c;
+$ink: #f2f1ee;
+$ink-dim: #a9a8a6;
+$signal: #ff2d46;
+$teal: #29e0c2;
+$panel: #17171a;
+$card-radius: 6px;
+$ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+@use './card.scss';
+
+.scroll-row {
+  position: relative;
+  z-index: 1;
+  padding: 28px 0;
+  color: $ink;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  &:has(.show-card-wrapper:hover),
+  &:has(.show-card-wrapper.is-active) {
+    z-index: 20;
+  }
+
+  &__title {
+    position: relative; 
+    z-index: 2; 
+    margin: 0 0 14px 44px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-transform: capitalize;
+  }
+
+  &__viewport {
+    position: relative;
+  }
+
+  &__track {
+    display: flex;
+    gap: 6px;
+    list-style: none;
+
+    $bleed-bottom: 320px; // 220px se badha ke 320px kar do
+    $bleed-top: 90px;
+    padding: $bleed-top 44px $bleed-bottom;
+    margin: (-$bleed-top) 0 (-$bleed-bottom);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  // Wrapper <div class="card"> from Scroll.jsx — just needs to not shrink
+  // in the flex track. Actual card visuals live in .show-card-wrapper
+  // (card.scss), so nothing else belongs here.
+  &__track .card {
+    flex: 0 0 auto;
+  }
+
+  &__nav {
+    position: absolute;
+    top: 26%;
+    width: 44px;
+    height: 40px;
+    border: none;
+    color: $ink;
+    background: rgba(0, 0, 0, 0.527);
+    border-radius: 5px;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 30;
+    opacity: 0;
+    transition: opacity 0.2s $ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--next {
+      right: 0;
+    }
+  }
+
+  // Nav arrows: show on hover for mouse users; always show on touch,
+  // since there's no hover to reveal them otherwise.
+  &__viewport:hover &__nav {
+    opacity: 1;
+  }
+
+  &__empty,
+  .empty {
+    padding: 0 44px;
+    color: $ink-dim;
+    font-size: 0.9rem;
+  }
+
+  .slider-spinner {
+    display: flex;
+    align-items: center;
+    padding: 0 44px;
+  }
+}
+
+@media (max-width: 900px) {
+  .scroll-row {
+    padding: 20px 0;
+
+    &__title {
+      margin-left: 24px;
+      font-size: 1.15rem;
+    }
+
+    &__track {
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    &__nav,
+    &__empty,
+    .empty,
+    .slider-spinner {
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+  }
+}
+
+// ── Phone ───────────────────────────────────────────────────
+@media (max-width: 640px) {
+  .scroll-row {
+    padding: 16px 0;
+
+    &__title {
+      margin-left: 14px;
+      font-size: 1rem;
+    }
+
+    &__track {
+      gap: 8px;
+      padding-left: 14px;
+      padding-right: 14px;
+      // no hover on touch, so .show-card-expanded never shows —
+      // the big bleed for hover-growth isn't needed here.
+      $bleed-top-mobile: 12px;
+      $bleed-bottom-mobile: 12px;
+      padding-top: $bleed-top-mobile;
+      padding-bottom: $bleed-bottom-mobile;
+      margin-top: -#{$bleed-top-mobile};
+      margin-bottom: -#{$bleed-bottom-mobile};
+    }
+
+    // Nav arrows are hover-only affordances; on touch just hide them,
+    // swiping the track works fine without them.
+    &__nav {
+      display: none;
+    }
+  }
+}

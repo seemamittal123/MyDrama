@@ -1,6 +1,9 @@
 .show-card-wrapper {
   position: relative;
   cursor: pointer;
+  width: clamp(250px, 26vw, 200px);
+  flex: 0 0 clamp(120px, 26vw, 200px);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
 
   .show-card-poster {
     width: 100%;
@@ -8,13 +11,15 @@
     overflow: hidden;
     position: relative;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    transition: box-shadow 0.35s ease, transform 0.35s ease;
 
     img {
       width: 100%;
       aspect-ratio: 16 / 9;
       object-fit: cover;
       display: block;
-      transition: transform 0.3s ease;
+      transition: transform 0.35s ease;
+      transform: translateZ(0);
     }
 
     .poster-info {
@@ -57,8 +62,11 @@
     }
   }
 
+  // Expanded hover card — sibling of .show-card-poster, NOT nested inside it,
+  // so the poster's overflow:hidden never clips this. It only gets clipped
+  // if a scrollable ANCESTOR (the row/track) has overflow-x:auto — that fix
+  // belongs in the row's scss, not here.
   .show-card-expanded {
-    display: none;
     position: absolute;
     top: -44px;
     left: -12px;
@@ -68,15 +76,18 @@
     overflow: hidden;
     box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
     z-index: 999;
-    animation: expandCard 0.2s ease forwards;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.9);
+    transform-origin: top center;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s linear 0.25s;
 
-    .expanded-image-wrapper {
-      img {
-        width: 100%;
-        aspect-ratio: 16 / 9;
-        object-fit: cover;
-        display: block;
-      }
+    .expanded-image-wrapper img {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
     }
 
     .expanded-content {
@@ -123,11 +134,12 @@
         justify-content: center;
         cursor: pointer;
         transition: all 0.2s ease;
-      }
 
-      .action-btn:hover {
-        border-color: rgba(255, 255, 255, 0.36);
-        background: rgba(255, 255, 255, 0.12);
+        &:hover {
+
+          border-color: rgba(255, 255, 255, 0.36);
+          background: rgba(255, 255, 255, 0.12);
+        }
       }
 
       .play-btn {
@@ -137,10 +149,10 @@
         border-radius: 999px;
         background: white;
         color: black;
-      }
 
-      .play-btn:hover {
-        transform: translateY(-1px);
+        &:hover {
+          transform: translateY(-1px);
+        }
       }
 
       .circle-btn {
@@ -173,10 +185,10 @@
         cursor: pointer;
         font-size: 13px;
         transition: background 0.2s ease;
-      }
 
-      .dropdown-item:hover {
-        background: rgba(255, 255, 255, 0.08);
+        &:hover {
+          background: rgba(255, 255, 255, 0.08);
+        }
       }
 
       .cancel-item {
@@ -197,11 +209,15 @@
     }
   }
 
-  // // Desktop — hover se khule (touch devices exclude, taaki mobile pe ghost-hover na ho)
+  // Desktop — hover se khule (touch devices exclude, taaki mobile pe ghost-hover na ho)
   @media (hover: hover) and (pointer: fine) {
     &:hover {
       .show-card-expanded {
-        display: block;
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1);
+        pointer-events: auto;
+        transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s linear 0s;
       }
 
       .show-card-poster img {
@@ -209,13 +225,28 @@
       }
     }
   }
+
+  &.is-active {
+    .show-card-expanded {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+      pointer-events: auto;
+      transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s linear 0s;
+    }
+
+    .show-card-poster img {
+      transform: scale(1.04);
+    }
+  }
 }
 
 @keyframes expandCard {
   from {
-    transform: scale(0.9);
     opacity: 0;
+    transform: scale(0.1);
   }
+
   to {
     transform: scale(1);
     opacity: 1;

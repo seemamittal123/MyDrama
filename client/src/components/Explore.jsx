@@ -19,18 +19,22 @@ const Explore = () => {
       <div className="inner-section">
         <div className='explore-wrapper container'>
           <h1>All shows</h1>
-          <div className="shows-wrapper">
-            {
-              loading ?
-                <div className='spinner2'>
-                    <img src={loader} alt="" />
-                </div>
-                : allShows?.map((show) => (
-                  <div key={show?.id || show?.title} onClick={(e) => goToShow(e, show._id)}>
-                    <ShowCard show={show} />
-                  </div>
-                ))}
-          </div>
+          {
+            loading ?
+              <div className='spinner2'>
+                <img src={loader} alt="" />
+              </div>
+              :
+              <div className="shows-wrapper">
+                {
+                  allShows?.map((show) => (
+                    <div key={show?.id || show?.title} onClick={(e) => goToShow(e, show._id)}>
+                      <ShowCard show={show} />
+                    </div>
+                  ))
+                }
+              </div>
+          }
         </div>
       </div>
     </div>

@@ -249,7 +249,9 @@ export const getLatestShows = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 12;
 
-    const shows = await Show.find().sort({ createdAt: -1 }).limit(limit);
+    const shows = await Show.find({ status: { $ne: "upcoming" } })
+      .sort({ createdAt: -1 })
+      .limit(limit);
 
     return res.status(200).json({ success: true, shows });
   } catch (error) {
@@ -270,23 +272,22 @@ export const getPopularShows = async (req, res) => {
         },
       },
       { $sort: { likeCount: -1 } },
-      { $limit: limit },
     ]);
 
     const showIds = popularShows.map((item) => item._id);
-    const shows = await Show.find({ _id: { $in: showIds } });
 
-    const result = showIds
-      .map((id) => {
-        const show = shows.find((s) => s._id.toString() === id.toString());
-        const matched = popularShows.find(
-          (item) => item._id.toString() === id.toString(),
-        );
-        return show
-          ? { ...show.toObject(), likeCount: matched.likeCount }
-          : null;
+    const shows = await Show.find({
+      _id: { $in: showIds },
+      status: { $ne: "upcoming" },
+    });
+
+    const result = popularShows
+      .map((item) => {
+        const show = shows.find((s) => s._id.toString() === item._id.toString());
+        return show ? { ...show.toObject(), likeCount: item.likeCount } : null;
       })
-      .filter(Boolean); // agar show delete ho chuka ho to null hata do
+      .filter(Boolean)
+      .slice(0, limit);
 
     return res.status(200).json({ success: true, shows: result });
   } catch (error) {
@@ -299,7 +300,9 @@ export const getTrendingShows = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 12;
 
-    const shows = await Show.find().sort({ views: -1 }).limit(limit);
+    const shows = await Show.find({ status: { $ne: "upcoming" } })
+      .sort({ views: -1 })
+      .limit(limit);
 
     return res.status(200).json({ success: true, shows });
   } catch (error) {

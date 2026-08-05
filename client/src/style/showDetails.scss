@@ -1,7 +1,7 @@
 @use './mixin.scss' as *;
 
 .cover-box {
-  background: rgba(0, 0, 0, 0.42);
+  background: rgba(0, 0, 0, 0.645);
   backdrop-filter: blur(20px);
   @include flex-center;
   position: fixed;
@@ -19,7 +19,8 @@
 
 .show {
   width: 100%;
-  max-width: 65rem;
+  max-width: 63rem;
+  min-height: 100vh;
   margin: 0 auto;
   background-color: #181818;
   color: #fff;
@@ -28,7 +29,7 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   font-family: "Helvetica Neue", Arial, sans-serif;
   position: absolute;
-  top: 10%;
+  top: 5%;
 
   &__hero {
     position: relative;
@@ -368,6 +369,7 @@
 
   // ---------------- More like this ----------------
   &__related-grid {
+    position: relative;
     display: grid;
     gap: 15px;
     grid-template-columns: repeat(3, 1fr);

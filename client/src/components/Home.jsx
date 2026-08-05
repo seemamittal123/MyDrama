@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react'
 import TopSlider from './TopSlider';
-import Slider from './Slider';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { server_Url } from '../App';
 import Show from './Show';
 import { showContext } from '../context/ShowProvider';
+import Scroll from './Scroll';
 const Home = () => {
   const { allShows, popular, latest, tranding, loading } = useSelector(state => state.show);
   const { continueWatch, history } = useSelector(state => state.user);
@@ -34,6 +34,7 @@ const Home = () => {
     fetchDramas("korean");
     fetchDramas("chinese");
     fetchDramas("upcoming");
+    fetchDramas("US");
     fetchDramas("anime");
   }, []);
 
@@ -46,26 +47,29 @@ const Home = () => {
         </div>
         <div className="container">
           <div className="slider-wrapper">
-            <Slider data={continueWatchShows} heading={"continue-watching"} handleShow={handleShow} loading={loading} />
-          </div>
-          <div className="slider-wrapper">
-            <Slider data={latest} heading={"latest-show"} handleShow={handleShow} loading={loading} />
-          </div>
-          <div className="slider-wrapper">
-            <Slider data={tranding} heading={"tranding-show"} handleShow={handleShow} loading={loading} />
-          </div>
-          <div className="slider-wrapper">
-            <Slider data={dramas.korean} heading={"korean-drama"} handleShow={handleShow} loading={loading} />
-          </div> <div className="slider-wrapper">
-            <Slider data={dramas.chinese} heading={"chinese-drama"} handleShow={handleShow} loading={loading} />
-          </div>
-          <div className="slider-wrapper">
-            <Slider data={dramas.anime} heading={"anime"} handleShow={handleShow} loading={loading} />
-          </div>
-          <div className="slider-wrapper">
-            <Slider data={dramas.upcoming} heading={"upcoming-show"} handleShow={handleShow} loading={loading} />
-          </div>
 
+            <Scroll items={continueWatchShows} title={"continue-watching"} loading={loading} />
+          </div>
+          <div className="slider-wrapper">
+          </div>
+          <Scroll items={latest} title={"latest-show"} loading={loading} />
+          <div className="slider-wrapper">
+            <Scroll items={tranding} title={"tranding-show"} loading={loading} />
+          </div>
+          <div className="slider-wrapper">
+            <Scroll items={dramas.korean} title={"korean-drama"} loading={loading} />
+          </div> <div className="slider-wrapper">
+            <Scroll items={dramas.chinese} title={"Chinese-drama"} loading={loading} />
+          </div>
+          <div className="slider-wrapper">
+            <Scroll items={dramas.anime} title={"anime"} loading={loading} />
+          </div>
+          <div className="slider-wrapper">
+            <Scroll items={dramas.US} title={"united-states"} loading={loading} />
+          </div>
+          <div className="slider-wrapper">
+            <Scroll items={dramas.upcoming} title={"upcoming-show"} loading={loading} />
+          </div>
         </div>
       </div>
     </div>

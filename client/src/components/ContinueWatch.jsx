@@ -23,20 +23,20 @@ const ContinueWatch = () => {
     <section className="inner-section">
       <div className="explore-wrapper container">
         <h1 className="continue-watching__title">Continue Watching</h1>
-        <div className="shows-wrapper">
-          {
-            continueWatch.length == 0 ?
-                <div className="empty">No Shows</div>
-              :
-              continueWatch.map((item) => {
+        {
+          continueWatch.length == 0 ?
+            <div className="empty">No Shows</div>
+            :
+            <div className="shows-wrapper">
+              {continueWatch.map((item) => {
                 return (
                   <div onClick={() => handleShow(item.show_id._id)} key={item._id}>
                     <ShowCard show={item.show_id} key={item._id} />
                   </div>
                 )
-              })
-          }
-        </div>
+              })}
+            </div>
+        }
       </div>
     </section>
   );
