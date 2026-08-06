@@ -62,10 +62,6 @@
     }
   }
 
-  // Expanded hover card — sibling of .show-card-poster, NOT nested inside it,
-  // so the poster's overflow:hidden never clips this. It only gets clipped
-  // if a scrollable ANCESTOR (the row/track) has overflow-x:auto — that fix
-  // belongs in the row's scss, not here.
   .show-card-expanded {
     position: absolute;
     top: -44px;
@@ -209,7 +205,6 @@
     }
   }
 
-  // Desktop — hover se khule (touch devices exclude, taaki mobile pe ghost-hover na ho)
   @media (hover: hover) and (pointer: fine) {
     &:hover {
       .show-card-expanded {
@@ -238,6 +233,9 @@
     .show-card-poster img {
       transform: scale(1.04);
     }
+  }
+
+  @media (max-width:448px) {
   }
 }
 

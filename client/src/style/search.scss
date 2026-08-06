@@ -41,8 +41,12 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
 
+    .show-card-wrapper {
+      width: 100%;
+    }
+
     @media (max-width:748px) {
-    grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 

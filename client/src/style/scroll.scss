@@ -16,14 +16,15 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
   color: $ink;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 170px;
+
   &:has(.show-card-wrapper:hover),
   &:has(.show-card-wrapper.is-active) {
     z-index: 20;
   }
 
   &__title {
-    position: relative; 
-    z-index: 2; 
+    position: relative;
+    z-index: 2;
     margin: 0 0 14px 44px;
     font-size: 1.3rem;
     font-weight: 700;
@@ -53,10 +54,6 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
       display: none;
     }
   }
-
-  // Wrapper <div class="card"> from Scroll.jsx — just needs to not shrink
-  // in the flex track. Actual card visuals live in .show-card-wrapper
-  // (card.scss), so nothing else belongs here.
   &__track .card {
     flex: 0 0 auto;
   }
@@ -140,20 +137,10 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
 
     &__track {
       gap: 8px;
-      padding-left: 14px;
-      padding-right: 14px;
-      // no hover on touch, so .show-card-expanded never shows —
-      // the big bleed for hover-growth isn't needed here.
-      $bleed-top-mobile: 12px;
-      $bleed-bottom-mobile: 12px;
-      padding-top: $bleed-top-mobile;
-      padding-bottom: $bleed-bottom-mobile;
-      margin-top: -#{$bleed-top-mobile};
-      margin-bottom: -#{$bleed-bottom-mobile};
+      padding-left: 0px;
+      padding-right: 0px;
     }
 
-    // Nav arrows are hover-only affordances; on touch just hide them,
-    // swiping the track works fine without them.
     &__nav {
       display: none;
     }
