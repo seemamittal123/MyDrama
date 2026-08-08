@@ -234,7 +234,10 @@ export const filterShows = async (req, res) => {
       ],
     };
 
-    const shows = await Show.find(filter).skip(skip).limit(limit);
+    const shows = await Show.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
     const totalCount = await Show.countDocuments(filter); // ✅
     const hasMore = skip + shows.length < totalCount;
@@ -251,14 +254,14 @@ export const getLatestShows = async (req, res) => {
     const limit = parseInt(req.query.limit) || 12;
     const skip = (page - 1) * limit;
 
-    const filter = { status: { $ne: "upcoming" } }; 
+    const filter = { status: { $ne: "upcoming" } };
 
     const shows = await Show.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
-    const totalCount = await Show.countDocuments(filter); 
+    const totalCount = await Show.countDocuments(filter);
     const hasMore = skip + shows.length < totalCount;
 
     res.json({ success: true, shows, hasMore });

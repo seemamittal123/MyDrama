@@ -135,7 +135,12 @@ body {
   margin: 0;
   box-sizing: border-box;
   color: white;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
+
 * {
   -webkit-tap-highlight-color: transparent;
 }
@@ -143,9 +148,6 @@ body {
 body {
   background-color: black;
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
 }
 
 input[type="number"] {

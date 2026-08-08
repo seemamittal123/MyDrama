@@ -63,7 +63,7 @@ const AdminDashboard = () => {
       const { data } = await axios.get(`${server_Url}/api/shows/all/shows?${params}`, { withCredentials: true });
       setPage(data.pagination.page)
       setTotalPages(data.pagination.totalPages);
-      setShows(data.shows);
+      setShows((prev) => [...prev, ...data.shows]);
     } catch (error) {
       console.log(error?.response);
     }
