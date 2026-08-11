@@ -19,6 +19,13 @@ const showSlice = createSlice({
       state.allShows.unshift(action.payload);
       state.loading = false;
     },
+    removeShow: (state, action) => {
+      const id = action.payload?.toString();
+      state.allShows = state.allShows.filter(
+        (show) => show?._id?.toString() !== id,
+      );
+      state.loading = false;
+    },
     setLatest: (state, action) => {
       state.latest = action.payload;
       state.loading = false;
@@ -34,6 +41,12 @@ const showSlice = createSlice({
   },
 });
 
-export const { setLatest, setPopular, setTranding, setNewShows, setAllShows } =
-  showSlice.actions;
+export const {
+  setLatest,
+  setPopular,
+  setTranding,
+  setNewShows,
+  removeShow,
+  setAllShows,
+} = showSlice.actions;
 export default showSlice.reducer;

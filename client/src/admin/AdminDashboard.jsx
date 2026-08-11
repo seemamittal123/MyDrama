@@ -6,6 +6,7 @@ import axios from "axios";
 import { server_Url } from "../App";
 import { ImBin } from "react-icons/im";
 import toast from "react-hot-toast";
+import { removeShow } from "../redux/showSlice";
 
 const STATUS_FILTERS = ["all", "ongoing", "completed", "upcoming"];
 
@@ -17,7 +18,7 @@ const AdminDashboard = () => {
   const [shows, setShows] = useState([])
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
+  const dispatch = useDispatch();
   const stats = useMemo(() => {
     const totalEpisodes = shows.reduce((sum, s) => sum + (s.total_episodes || 0), 0);
     const totalViews = shows.reduce((sum, s) => sum + (s.views || 0), 0);
@@ -46,8 +47,9 @@ const AdminDashboard = () => {
     e.stopPropagation();
     try {
       const { data } = await axios.delete(`${server_Url}/api/shows/show/delete/${showId}`, { withCredentials: true });
-      if (data.success)
-        toast.success(data.message);
+      toast.success(data.message);
+      setShows((prevShows) => prevShows.filter((show) => show._id !== showId));
+      dispatch(removeShow(showId));
     } catch (error) {
       console.log(error.response);
     }
