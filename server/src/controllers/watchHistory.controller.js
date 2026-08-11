@@ -21,7 +21,6 @@ export const updateProgress = async (req, res) => {
     const completed =
       total_duration && watched_duration >= total_duration * 0.9;
 
-
     // Ye line sabse important hai — isi se continue watching kaam karta hai
     const history = await WatchHistory.findOneAndUpdate(
       { user_id, episode_id },
@@ -74,6 +73,10 @@ export const getContinueWatching = async (req, res) => {
     const showMap = new Map();
 
     for (const record of allHistory) {
+      if (!record?.show_id?._id) {
+        continue;
+      }
+
       const showId = record.show_id._id.toString();
       const existing = showMap.get(showId);
 
@@ -91,6 +94,10 @@ export const getContinueWatching = async (req, res) => {
     // Ab har show ke liye total/completed episodes count karo
     const continueWatching = [];
     for (const [showId, record] of showMap) {
+      if (!record?.show_id?._id) {
+        continue;
+      }
+
       const totalEpisodes = await Episode.countDocuments({
         show_id: record.show_id._id,
       });
@@ -113,7 +120,7 @@ export const getContinueWatching = async (req, res) => {
 
     // Sabse recent activity wala show upar rahe
     continueWatching.sort(
-      (a, b) => new Date(b.last_watched_at) - new Date(a.last_watched_at)
+      (a, b) => new Date(b.last_watched_at) - new Date(a.last_watched_at),
     );
 
     return res
@@ -131,10 +138,14 @@ export const getResumeEpisode = async (req, res) => {
     const { show_id } = req.params;
 
     // Show ke sab episodes, order mein
-    const episodes = await Episode.find({ show_id }).sort({ episode_number: 1 });
+    const episodes = await Episode.find({ show_id }).sort({
+      episode_number: 1,
+    });
 
     if (!episodes.length) {
-      return res.status(404).json({ message: "No episodes found for this show" });
+      return res
+        .status(404)
+        .json({ message: "No episodes found for this show" });
     }
 
     // User ki is show ki poori watch history

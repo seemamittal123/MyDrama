@@ -6,17 +6,31 @@ import { server_Url } from "../App";
 import loader from '../assets/loader.svg';
 import { ChevronRight } from 'lucide-react';
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setContinueWatch } from "../redux/userSlice";
 
 export default function EpisodePlayerPage() {
   const { user } = useSelector(state => state.user);
   const { slug, id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [episode, setEpisode] = useState(null);
   const [savedProgress, setSavedProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [allEpisodes, setAllEpisodes] = useState([]);
   const [nextEpisode, setNextEpisode] = useState(null);
+
+  const refreshContinueWatch = async () => {
+    if (!user?._id) return;
+
+    try {
+      const { data } = await axios.get(`${server_Url}/api/users/continue-watching`, { withCredentials: true });
+      dispatch(setContinueWatch(data.history || []));
+    } catch (error) {
+      console.log("Continue watching refresh error:", error?.response?.data);
+      dispatch(setContinueWatch([]));
+    }
+  };
 
   useEffect(() => {
     const fetchEpisodeData = async () => {
@@ -56,11 +70,11 @@ export default function EpisodePlayerPage() {
     else {
       toast.error("You need to sign in")
     }
-  }, [id]);
+  }, [id, user?._id]);
 
   const handleProgress = async ({ watched_duration, total_duration }) => {
     try {
-      const response = await axios.post(
+      await axios.post(
         `${server_Url}/api/users/watch-history/progress`,
         {
           episode_id: id,
@@ -69,6 +83,7 @@ export default function EpisodePlayerPage() {
         },
         { withCredentials: true }
       );
+      await refreshContinueWatch();
     } catch (error) {
       console.log(" Progress error:", error?.response?.data);
     }
