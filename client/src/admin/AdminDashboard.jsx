@@ -19,6 +19,7 @@ const AdminDashboard = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const dispatch = useDispatch();
+
   const stats = useMemo(() => {
     const totalEpisodes = shows.reduce((sum, s) => sum + (s.total_episodes || 0), 0);
     const totalViews = shows.reduce((sum, s) => sum + (s.views || 0), 0);
@@ -26,13 +27,33 @@ const AdminDashboard = () => {
     return { totalShows: shows.length, totalEpisodes, totalViews, ongoing };
   }, [shows]);
 
-  const filteredShows = useMemo(() => {
-    return shows.filter((show) => {
-      const matchesSearch = show.title?.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus = statusFilter === "all" || show.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [shows, search, statusFilter]);
+  const searchShow = async () => {
+    try {
+      if (!search) return;
+      setPage(1);
+      const { data } = await axios.get(`${server_Url}/api/shows/search/shows?search=${search}`, { withCredentials: true })
+      console.log(data);
+      setShows(data.shows)
+    } catch (error) {
+      console.log(error.response);
+    }
+  };
+  const filteredShows = async () => {
+    try {
+      if (!statusFilter) return;
+      setPage(1);
+
+      if (statusFilter === "all") {
+        fetchShows();
+        return;
+      }
+
+      const { data } = await axios.get(`${server_Url}/api/shows/filter/shows?q=${statusFilter}`, { withCredentials: true })
+      setShows(data.shows)
+    } catch (error) {
+      console.log(error.response);
+    }
+  };
 
   const goToEpisodes = (showId) => {
     navigate(`/admin/shows/${showId}`);
@@ -55,25 +76,44 @@ const AdminDashboard = () => {
     }
   }
 
+  const handleNextPage = () => {
+    setPage(page + 1);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-  const fetchShows = async () => {
+
+  const fetchShows = async (pageNum = 1) => {
     try {
       const params = new URLSearchParams({
-        page: page,
+        page: pageNum,
         limit: 20,
       });
       const { data } = await axios.get(`${server_Url}/api/shows/all/shows?${params}`, { withCredentials: true });
       setPage(data.pagination.page)
       setTotalPages(data.pagination.totalPages);
-      setShows((prev) => [...prev, ...data.shows]);
+      setShows(data.shows);
     } catch (error) {
       console.log(error?.response);
     }
   }
 
   useEffect(() => {
-    fetchShows();
-  }, [page])
+    if (search === "" && statusFilter === "all") {
+      fetchShows(page);
+    }
+  }, [page]);
+
+  useEffect(() => {
+    if (search === "") {
+      setPage(1);
+      fetchShows();
+    } else {
+      searchShow();
+    }
+  }, [search])
+  useEffect(() => {
+    filteredShows();
+  }, [statusFilter]);
 
   return (
     <div className="admin-dashboard">
@@ -135,14 +175,14 @@ const AdminDashboard = () => {
         </select>
       </div>
 
-      {filteredShows.length === 0 ? (
+      {shows?.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state__title">No shows found</div>
           <p>Try a different search or filter, or add a new series.</p>
         </div>
       ) : (
         <div className="series-grid">
-          {filteredShows.map((show) => (
+          {shows?.map((show) => (
             <div
               key={show._id}
               className="series-card"
@@ -186,8 +226,8 @@ const AdminDashboard = () => {
               </div>
             </div>
           ))}
-          {filteredShows.length == 20 &&
-            <button onClick={() => setPage(page + 1)} className="next-btn">
+          {shows?.length == 20 &&
+            <button onClick={handleNextPage} className="next-btn">
               Next
             </button>}
         </div>

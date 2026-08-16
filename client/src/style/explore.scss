@@ -33,8 +33,10 @@
     width: 170px;
     height: 45px;
     border-radius: 10px;
-    background: #ffffff69;
-    backdrop-filter: blur(20px);
+    background: #CB2957;
+    font-size: 16px;
+    font-weight: 600;
+
     @media (max-width:748px) {
       width: 100%;
     }
