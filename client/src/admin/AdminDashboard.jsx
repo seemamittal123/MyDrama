@@ -77,7 +77,9 @@ const AdminDashboard = () => {
   }
 
   const handleNextPage = () => {
-    setPage(page + 1);
+    if (page >= totalPages) return;
+    const nextPage = page + 1;
+    setPage(nextPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -98,22 +100,18 @@ const AdminDashboard = () => {
   }
 
   useEffect(() => {
-    if (search === "" && statusFilter === "all") {
-      fetchShows(page);
-    }
-  }, [page]);
-
-  useEffect(() => {
-    if (search === "") {
-      setPage(1);
-      fetchShows();
-    } else {
+    if (search.trim()) {
       searchShow();
+      return;
     }
-  }, [search])
-  useEffect(() => {
-    filteredShows();
-  }, [statusFilter]);
+
+    if (statusFilter !== "all") {
+      filteredShows();
+      return;
+    }
+
+    fetchShows(page);
+  }, [page, search, statusFilter]);
 
   return (
     <div className="admin-dashboard">
