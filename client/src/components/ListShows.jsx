@@ -4,7 +4,7 @@ import { showContext } from "../context/ShowProvider";
 import { useParams } from "react-router-dom";
 import axios from 'axios';
 import { server_Url } from "../App";
-import loader from '../assets/loader.svg'
+import ShowCardSkeleton from "./ShowCardSkeleton";
 
 const apiPaths = {
   latest: "/api/shows/latest-show",
@@ -45,7 +45,7 @@ const ListShows = () => {
         setShows((prev) => [...prev, ...data.shows]);
         setHasMore(data.hasMore);
         console.log(data);
-        
+
       }
     } catch (error) {
       console.log("error:", error.response || error.message);
@@ -72,8 +72,8 @@ const ListShows = () => {
         <h1 className="continue-watching__title">{heading}</h1>
         {
           loading ?
-            <div className="spinner2">
-              <img src={loader} alt="" />
+            <div className="shows-wrapper">
+              {Array.from({ length: 20 }, (_, index) => <ShowCardSkeleton key={index} />)}
             </div>
             :
             shows.length == 0 ?
