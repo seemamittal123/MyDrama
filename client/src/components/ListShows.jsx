@@ -14,6 +14,7 @@ const apiPaths = {
   chinese: "/api/shows/filter/shows?q=chinese",
   anime: "/api/shows/filter/shows?q=anime",
   united: "/api/shows/filter/shows?q=US",
+  movies: "/api/shows/filter/shows?q=movie",
   upcoming: "/api/shows/filter/shows?q=upcoming",
 };
 

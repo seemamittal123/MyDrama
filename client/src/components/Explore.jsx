@@ -6,6 +6,7 @@ import { server_Url } from '../App';
 import Show from './Show';
 import { showContext } from '../context/ShowProvider';
 import loader from '../assets/loader.svg';
+import ShowCardSkeleton from './ShowCardSkeleton';
 
 const Explore = () => {
   const { allShows, loading } = useSelector(state => state.show);
@@ -21,8 +22,8 @@ const Explore = () => {
           <h1>All shows</h1>
           {
             loading ?
-              <div className='spinner2'>
-                <img src={loader} alt="" />
+              <div className="shows-wrapper">
+                {Array.from({ length: 20 }, (_, index) => <ShowCardSkeleton key={index} />)}
               </div>
               :
               <div className="shows-wrapper">

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nari Suraksha - Women Safety</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+  
+  body {
+    background: linear-gradient(135deg, #8B5CF6 0%, #06B6D4 100%);
+    color: #fff;
+    min-height: 100vh;
+  }
+
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 8%;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+  }
+  .logo { font-size: 22px; font-weight: 700; }
+  .nav-links a { color: #fff; text-decoration: none; margin-left: 20px; font-size: 15px; }
+
+  .hero {
+    text-align: center;
+    padding: 80px 8%;
+  }
+  .hero h1 { font-size: 40px; margin-bottom: 15px; }
+  .hero p { font-size: 16px; opacity: 0.9; margin-bottom: 30px; }
+
+  .sos-btn {
+    background: #EF4444;
+    color: #fff;
+    border: none;
+    padding: 20px 50px;
+    font-size: 20px;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(239,68,68,0.4);
+    transition: 0.3s;
+  }
+  .sos-btn:hover { transform: scale(1.05); background: #DC2626; }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 40px 8%;
+  }
+  .card {
+    background: rgba(255,255,255,0.15);
+    padding: 25px;
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    text-align: center;
+  }
+  .card h3 { margin-bottom: 10px; font-size: 18px; }
+
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
+    opacity: 0.8;
+  }
+
+  @media(max-width: 600px){
+    .hero h1 { font-size: 28px; }
+    .sos-btn { padding: 16px 35px; font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="logo">🛡️ Nari Suraksha</div>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">Contacts</a>
+      <a href="#">Tips</a>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>Aapki Suraksha, Hamari Priority</h1>
+    <p>Mushkil me ho? 1 click me help bhejo</p>
+    <button class="sos-btn">🚨 SOS ALERT</button>
+  </div>
+
+  <div class="features">
+    <div class="card">
+      <h3>📍 Live Location</h3>
+      <p>Family ko turant location share karo</p>
+    </div>
+    <div class="card">
+      <h3>👨‍👩‍👧 Emergency Contacts</h3>
+      <p>5 tak contacts add kar sakte ho</p>
+    </div>
+    <div class="card">
+      <h3>📢 Safety Tips</h3>
+      <p>Roz ke safety ke important tips</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    © 2026 Nari Suraksha Project | Made for Women Safety
+  </div>
+
+</body>
+</html>

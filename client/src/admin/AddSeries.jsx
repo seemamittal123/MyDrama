@@ -10,6 +10,7 @@ import { setNewShows } from "../redux/showSlice";
 const GENRE_OPTIONS = [
   "Romance",
   "Action",
+  "Movie",
   "Anime",
   "Comedy",
   "Drama",

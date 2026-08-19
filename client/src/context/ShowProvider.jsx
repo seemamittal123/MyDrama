@@ -5,13 +5,14 @@ import axios from 'axios';
 
 export const showContext = createContext({
   showDetails: {}, episodes: [], toggle: false,
-  handleShow: () => {}, fetchEpisodes: () => {}, onClose: () => {}
+  handleShow: () => { }, fetchEpisodes: () => { }, onClose: () => { }
 });
 
 const ShowProvider = ({ children }) => {
   const [showDetails, setShowDetails] = useState({});
   const [episodes, setEpisodes] = useState([]);
   const [toggle, setToggle] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { allShows } = useSelector(state => state.show);
 
   const onClose = () => {
@@ -20,6 +21,8 @@ const ShowProvider = ({ children }) => {
 
   const fetchEpisodes = async (showId) => {
     try {
+      setLoading(true);
+
       const { data } = await axios.get(`${server_Url}/api/episodes/show/${showId}/all/episodes`);
       if (data.success) {
         setEpisodes(data.episodes);
@@ -27,6 +30,9 @@ const ShowProvider = ({ children }) => {
 
     } catch (error) {
       console.log(error.response);
+    }
+    finally {
+      setLoading(false)
     }
   }
 
@@ -38,7 +44,7 @@ const ShowProvider = ({ children }) => {
   }
 
   return (
-    <showContext.Provider value={{ showDetails, episodes, toggle, handleShow, fetchEpisodes, onClose }}>
+    <showContext.Provider value={{ showDetails, episodes, toggle, handleShow, fetchEpisodes, onClose,loading }}>
       {children}
     </showContext.Provider>
   );

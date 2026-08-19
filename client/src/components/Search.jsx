@@ -7,6 +7,7 @@ import { IoIosArrowBack } from "react-icons/io";
 import { showContext } from '../context/ShowProvider';
 import loader from '../assets/loader.svg';
 import { useSelector } from 'react-redux';
+import ShowCardSkeleton from './ShowCardSkeleton';
 
 const Search = ({ handleClose }) => {
   const { tranding } = useSelector(state => state.show)
@@ -47,17 +48,17 @@ const Search = ({ handleClose }) => {
         </div>
         {
           loading ?
-            <div className='spinner'>
-              <img src={loader} alt="" />
+            <div className="shows-wrapper">
+              {Array.from({ length: 20 }, (_, index) => <ShowCardSkeleton key={index} />)}
             </div> :
             shows?.length != 0 &&
-              <div className='shows-wrapper'>
-                {shows?.map((show) => (
-                  <div onClick={() => handleShow(show._id)}>
-                    <ShowCard show={show} key={show.title || show._id} />
-                  </div>
-                ))}
-              </div>
+            <div className='shows-wrapper'>
+              {shows?.map((show) => (
+                <div onClick={() => handleShow(show._id)}>
+                  <ShowCard show={show} key={show.title || show._id} />
+                </div>
+              ))}
+            </div>
         }
       </div>
     </div>

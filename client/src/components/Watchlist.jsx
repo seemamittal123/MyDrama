@@ -7,6 +7,7 @@ import { IoIosArrowBack } from "react-icons/io";
 import { showContext } from '../context/ShowProvider';
 import { useSelector } from 'react-redux';
 import loader from '../assets/loader.svg';
+import ShowCardSkeleton from './ShowCardSkeleton';
 const Watchlist = () => {
   const { watchList, loading } = useSelector(state => state.user);
   const { handleShow } = useContext(showContext)
@@ -17,9 +18,9 @@ const Watchlist = () => {
         <h1>Watchlist</h1>
         {
           loading ?
-            <div className='spinner2'>
-              <img src={loader} alt="Loading" />
-            </div>
+             <div className="shows-wrapper">
+                {Array.from({ length: 8 }, (_, index) => <ShowCardSkeleton key={index} />)}
+              </div>
             :
             watchList?.length == 0 ?
               <div className='empty'>No Shows</div>

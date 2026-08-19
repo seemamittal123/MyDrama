@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import loader from '../assets/loader.svg'
 import ShowCard from './ShowCard';
 import { showContext } from '../context/ShowProvider';
+import ShowCardSkeleton from './ShowCardSkeleton';
 const History = () => {
   const { history, loading, user } = useSelector(state => state.user);
 
@@ -24,8 +25,8 @@ const History = () => {
         <h1>History </h1>
         {
           loading ?
-            <div className='spinner2'>
-                <img src={loader} alt="" />
+            <div className="shows-wrapper">
+              {Array.from({ length: 20 }, (_, index) => <ShowCardSkeleton key={index} />)}
             </div> :
             continueWatchShows.length > 0 ?
               <div className="shows-wrapper">

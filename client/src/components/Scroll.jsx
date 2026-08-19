@@ -5,6 +5,7 @@ import { showContext } from '../context/ShowProvider';
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
+import ShowCardSkeleton from "./ShowCardSkeleton";
 const Scroll = ({ title, items = [], loading }) => {
   const trackRef = useRef(null);
   const [edge, setEdge] = useState({ start: true, end: false });
@@ -48,9 +49,8 @@ const Scroll = ({ title, items = [], loading }) => {
         >
           {
             loading ?
-              <div className='slider-spinner'>
-                < img src={loader} alt="" />
-              </div> :
+              Array.from({ length: 8 }).map((_, i) => <ShowCardSkeleton key={i} />)
+              :
               items?.length == 0 ?
                 <div className='empty'>
                   No {title}

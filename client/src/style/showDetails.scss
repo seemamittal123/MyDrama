@@ -595,3 +595,62 @@
     top: 0px;
   }
 }
+
+/* Episode skeleton */
+.episode-card-wrapper {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.episode-thumbnail {
+  width: 160px;
+  height: 50px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.episode-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.episode-meta-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.skeleton-episode-number { width: 24px; height: 14px; }
+.skeleton-duration { width: 50px; height: 12px; }
+.skeleton-episode-title { width: 70%; height: 16px; }
+.skeleton-episode-desc { width: 95%; height: 10px; }
+.skeleton-episode-desc-short { width: 60%; height: 10px; }
+
+/* Related show skeleton */
+.related-show-wrapper {
+  width: 100%;
+}
+
+.related-show-poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: 4px;
+}
+
+.related-show-info {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skeleton-related-title { width: 80%; height: 14px; }
+
+.related-meta-row {
+  display: flex;
+  gap: 8px;
+}

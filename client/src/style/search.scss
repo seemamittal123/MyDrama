@@ -36,10 +36,13 @@
   }
 
   .shows-wrapper {
+    height: 100%;
     padding: 20px 0;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
+    overflow-x: hidden;
+    overflow-y: scroll;
 
     .show-card-wrapper {
       width: 100%;

@@ -46,6 +46,7 @@ const showSchema = new mongoose.Schema(
           "Romance",
           "Action",
           "Anime",
+          "Movie",
           "Comedy",
           "Drama",
           "Thriller",

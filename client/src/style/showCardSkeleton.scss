@@ -1,0 +1,51 @@
+.show-card-skeleton {
+  pointer-events: none;
+
+  .show-card-poster,
+  .expanded-image-wrapper {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.skeleton-shimmer,
+.skeleton-line {
+  background: linear-gradient(90deg,
+      #2a2a2a 25%,
+      #3a3a3a 37%,
+      #2a2a2a 63%);
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+  border-radius: 4px;
+}
+
+.skeleton-line {
+  height: 12px;
+}
+
+.skeleton-title {
+  width: 60%;
+  height: 20px;
+}
+
+.skeleton-badge {
+  width: 40px;
+}
+
+.skeleton-badge-sm {
+  width: 60px;
+}
+
+.skeleton-genre {
+  width: 50px;
+  margin-right: 8px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}

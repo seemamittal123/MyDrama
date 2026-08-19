@@ -10,7 +10,42 @@ import VideoPlayer from "./VideoPlayer";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-const Show = ({ show, episodes, onClose, handleShow }) => {
+
+const EpisodeCardSkeleton = () => {
+  return (
+    <div className="episode-card-wrapper episode-card-skeleton">
+      <div className="episode-thumbnail skeleton-shimmer" />
+
+      <div className="episode-info">
+        <div className="episode-meta-row">
+          <div className="skeleton-line skeleton-episode-number" />
+          <div className="skeleton-line skeleton-duration" />
+        </div>
+        <div className="skeleton-line skeleton-episode-title" />
+        <div className="skeleton-line skeleton-episode-desc" />
+        <div className="skeleton-line skeleton-episode-desc-short" />
+      </div>
+    </div>
+  );
+};
+
+const RelatedShowSkeleton = () => {
+  return (
+    <div className="related-show-wrapper related-show-skeleton">
+      <div className="related-show-poster skeleton-shimmer" />
+
+      <div className="related-show-info">
+        <div className="skeleton-line skeleton-related-title" />
+        <div className="related-meta-row">
+          <div className="skeleton-line skeleton-badge-sm" />
+          <div className="skeleton-line skeleton-badge-sm" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const Show = ({ show, episodes, onClose, loading2, handleShow }) => {
   const { user } = useSelector(state => state.user);
   const [episodesOpen, setEpisodesOpen] = useState(true);
   const [related, setRelated] = useState([]);
@@ -207,33 +242,37 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
               </button>
             </div>
 
-            {episodesOpen && (
-              <ul className="show__episode-list">
-                {
-                  episodes?.map((ep) => (
-                    <li key={ep.number} className="show__episode" onClick={() => navigate(`/Drama/${show.slug}/episode/${ep._id}`)}>
-                      <span className="show__episode-number">{ep.episode_number}</span>
-                      <div className="show__episode-thumb">
-                        {ep.thumbnail_url && (
-                          <img src={ep.thumbnail_url} alt={ep.title} />
-                        )}
-                        <div className="show__episode-thumb-overlay">
-                          <Play size={22} fill="white" />
-                        </div>
-                      </div>
-                      <div className="show__episode-body">
-                        <div className="show__episode-top">
-                          <h3 className="show__episode-title">{ep.episode_number} {ep.title}</h3>
-                          <span className="show__episode-duration">
-                            {formatDuration(ep.duration)}
-                          </span>
-                        </div>
-                        <p className="show__episode-desc">{ep.description}</p>
-                      </div>
-                    </li>
-                  ))}
-              </ul>
-            )}
+            {
+              loading2 ?
+                Array.from({ length: 5 }).map((_, i) => <EpisodeCardSkeleton key={i} />)
+                :
+                episodesOpen && (
+                  <ul className="show__episode-list">
+                    {
+                      episodes?.map((ep) => (
+                        <li key={ep.number} className="show__episode" onClick={() => navigate(`/Drama/${show.slug}/episode/${ep._id}`)}>
+                          <span className="show__episode-number">{ep.episode_number}</span>
+                          <div className="show__episode-thumb">
+                            {ep.thumbnail_url && (
+                              <img src={ep.thumbnail_url} alt={ep.title} />
+                            )}
+                            <div className="show__episode-thumb-overlay">
+                              <Play size={22} fill="white" />
+                            </div>
+                          </div>
+                          <div className="show__episode-body">
+                            <div className="show__episode-top">
+                              <h3 className="show__episode-title">{ep.episode_number} {ep.title}</h3>
+                              <span className="show__episode-duration">
+                                {formatDuration(ep.duration)}
+                              </span>
+                            </div>
+                            <p className="show__episode-desc">{ep.description}</p>
+                          </div>
+                        </li>
+                      ))}
+                  </ul>
+                )}
           </div>
 
           <div className="show__section">
@@ -243,9 +282,7 @@ const Show = ({ show, episodes, onClose, handleShow }) => {
             <div className="show__related-grid">
               {
                 loading ?
-                  <div className='spinner'>
-                    <img src={loader} alt="" />
-                  </div> :
+                  Array.from({ length: 6 }).map((_, i) => <RelatedShowSkeleton key={i} />) :
                   related?.map((item) => (
                     <div className="show-card" onClick={() => handleShow(item._id)}>
                       <div className="show-card__image">
