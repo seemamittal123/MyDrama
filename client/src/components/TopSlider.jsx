@@ -44,13 +44,13 @@ const TopSlider = ({ data, handleShow, loading }) => {
                 <h1 className="title">{item.title}</h1>
                 <h3>{item.description}</h3>
                 <div className="btn-wrapper">
-                  <button className='play' onClick={() => handleShow(item)}>
+                  <button className='play' onClick={() => handleShow(item._id)}>
                     <span>
                       <FaPlay />
                     </span>
                     Play
                   </button>
-                  <button className='more-info' onClick={() => handleShow(item)}>
+                  <button className='more-info' onClick={() => handleShow(item._id)}>
                     <span>
                       <IoInformationCircleOutline />
                     </span>
