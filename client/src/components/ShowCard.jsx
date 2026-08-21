@@ -5,23 +5,29 @@ import axios from 'axios';
 import { server_Url } from '../App';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeWatchList } from '../redux/userSlice';
 
 const ShowCard = ({ show, key }) => {
   const { user } = useSelector(state => state.user);
+  const dispatch = useDispatch();
   const [menuOpen, setMenuOpen] = useState(false);
   const [liked, setLiked] = useState(false)
   const menuRef = useRef(null);
   const navigate = useNavigate();
-  
-  
+
+
   const goToAddWatchList = async (e, showId) => {
     e.stopPropagation();
     if (user?._id) {
       try {
         const { data } = await axios.post(`${server_Url}/api/users/create/watchlist`, { show_id: showId }, { withCredentials: true })
-        if (data.success)
+        if (data.success) {
           toast.success(data.message);
+          if (data.message === 'Remove from watchlist') {
+            dispatch(removeWatchList(showId));
+          }
+        }
       } catch (error) {
         console.log(error?.response);
       }

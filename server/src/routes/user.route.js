@@ -23,6 +23,6 @@ user.get("/watch-history/progress/:episode_id", isAuth, getProgressByEpisode);
 user.get("/continue-watching", isAuth, getContinueWatching);
 user.get("/watch-history/resume/:show_id", isAuth, getResumeEpisode);
 user.get("/history", isAuth, getFullHistory);
-user.delete("/history", isAuth, clearHistory);
+user.delete("/clear-history", isAuth, clearHistory);
 
 export default user;

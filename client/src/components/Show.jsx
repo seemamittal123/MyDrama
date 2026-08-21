@@ -45,14 +45,11 @@ const RelatedShowSkeleton = () => {
   );
 };
 
-const Show = ({ show, episodes, onClose, loading2, handleShow }) => {
+const Show = ({ show, episodes, onClose, loading1, handleShow, related, loading2 }) => {
   const { user } = useSelector(state => state.user);
   const [episodesOpen, setEpisodesOpen] = useState(true);
-  const [related, setRelated] = useState([]);
   const [liked, setLiked] = useState(false)
-  const [loading, setloading] = useState(false)
   const navigate = useNavigate();
-
 
   const goToResume = async () => {
     if (user?._id) {
@@ -73,6 +70,7 @@ const Show = ({ show, episodes, onClose, loading2, handleShow }) => {
       toast.error("You need to sign in")
     }
   };
+
   const formatDuration = (seconds) => {
     if (seconds == null || seconds < 0) return "—";
 
@@ -90,21 +88,7 @@ const Show = ({ show, episodes, onClose, loading2, handleShow }) => {
 
     return `${s}s`;
   };
-  const fetchRelatedShows = async () => {
-    try {
-      setloading(true);
-      const { data } = await axios.get(`${server_Url}/api/shows/filter/shows?q=${show?.genre.join("&")}&limit=6`)
-      if (data.success) {
-        const filterData = data.shows.filter((s) => s._id.toString() != show._id.toString())
-        setRelated(filterData);
-      }
-    } catch (error) {
-      console.log(error.response);
-    }
-    finally {
-      setloading(false);
-    }
-  }
+
   const goToAddWatchList = async (e, showId) => {
     e.stopPropagation();
     if (user?._id) {
@@ -140,9 +124,10 @@ const Show = ({ show, episodes, onClose, loading2, handleShow }) => {
     }
   }
 
-  useEffect(() => {
-    fetchRelatedShows();
-  }, [])
+  const gotoshow = (item) => {
+    handleShow(item);
+    document.querySelector(".cover-box")?.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   useEffect(() => {
     const checkLike = async () => {
@@ -218,11 +203,11 @@ const Show = ({ show, episodes, onClose, loading2, handleShow }) => {
             <div className="show__info">
               <div>
                 <span className="show__info-label">Cast: </span>
-                {show?.cast.join(" , ")}
+                {show?.cast?.join?.(" , ") || show?.cast}
               </div>
               <div>
                 <span className="show__info-label">Genres: </span>
-                {show?.genre.join(" , ")}
+                {show?.genre?.join?.(" , ") || show?.genre}
               </div>
             </div>
           </div>
@@ -243,7 +228,7 @@ const Show = ({ show, episodes, onClose, loading2, handleShow }) => {
             </div>
 
             {
-              loading2 ?
+              loading1 ?
                 Array.from({ length: 5 }).map((_, i) => <EpisodeCardSkeleton key={i} />)
                 :
                 episodesOpen && (
@@ -281,10 +266,10 @@ const Show = ({ show, episodes, onClose, loading2, handleShow }) => {
             </h2>
             <div className="show__related-grid">
               {
-                loading ?
+                loading2 ?
                   Array.from({ length: 6 }).map((_, i) => <RelatedShowSkeleton key={i} />) :
                   related?.map((item) => (
-                    <div className="show-card" onClick={() => handleShow(item._id)}>
+                    <div className="show-card" onClick={() => gotoshow(item)}>
                       <div className="show-card__image">
                         <img
                           src={item.poster_url || item.banner_url} alt={item.title} />
@@ -308,7 +293,7 @@ const Show = ({ show, episodes, onClose, loading2, handleShow }) => {
                             </div>
                           </div>
 
-                          <button className="add-btn">
+                          <button className="add-btn" onClick={(e) => goToAddWatchList(e, item._id)}>
                             <FaPlus />
                           </button>
                         </div>
@@ -325,7 +310,7 @@ const Show = ({ show, episodes, onClose, loading2, handleShow }) => {
             </div>
             <div>
               <span className="show__footer-label">Genres: </span>
-              {show?.genre.join(" , ")}
+              {show?.genre?.join?.(" , ") || show?.genre}
             </div>
           </div>
         </div>

@@ -28,7 +28,7 @@ const App = () => {
     <>
       <ScrollToTop />
       <Outlet />
-      <Toaster style={{ zIndex: 999999 }} />
+      <Toaster containerStyle={{ zIndex: 1000000 }} />
     </>
   )
 }

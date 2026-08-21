@@ -224,7 +224,14 @@ export const getFullHistory = async (req, res) => {
 export const clearHistory = async (req, res) => {
   try {
     const user_id = req.userId;
-    const { episode_id } = req.body;
+    const { episode_id, show_ids } = req.body;
+
+    if (Array.isArray(show_ids) && show_ids.length > 0) {
+      await WatchHistory.deleteMany({ user_id, show_id: { $in: show_ids } });
+      return res
+        .status(200)
+        .json({ success: true, message: "Selected history deleted" });
+    }
 
     if (episode_id) {
       await WatchHistory.deleteOne({ user_id, episode_id });

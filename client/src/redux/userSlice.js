@@ -25,12 +25,12 @@ const userSlice = createSlice({
     removeWatchList: (state, action) => {
       const showId = action.payload;
       state.watchList = state.watchList.filter(
-        (show) => show._id.toString() != showId.toString(),
+        (watch) => watch.show_id?._id?.toString() !== showId.toString(),
       );
     },
     setHistory: (state, action) => {
       state.history = action.payload;
-      state.loading=false;
+      state.loading = false;
     },
     setContinueWatch: (state, action) => {
       state.continueWatch = action.payload;

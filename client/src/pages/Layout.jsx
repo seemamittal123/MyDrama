@@ -9,7 +9,7 @@ import Footer from '../components/Footer';
 
 const Layout = () => {
   const [searchToggle, setSearchToggle] = useState(false);
-  const { toggle, showDetails, episodes, onClose, handleShow, loading } = useContext(showContext);
+  const { toggle, showDetails, episodes, onClose, handleShow, loading1,loading2,related } = useContext(showContext);
   const handleClose = () => {
     setSearchToggle(false)
   }
@@ -18,7 +18,7 @@ const Layout = () => {
       <Header setSearchToggle={setSearchToggle} />
       <Outlet />
       <Footer />
-      {toggle && <Show show={showDetails} episodes={episodes} onClose={onClose} handleShow={handleShow} loading2={loading} />}
+      {toggle && <Show show={showDetails} episodes={episodes} onClose={onClose} handleShow={handleShow} loading1={loading1} loading2={loading2} related={related} />}
       {searchToggle && <Search handleClose={handleClose} />}
     </>
   )

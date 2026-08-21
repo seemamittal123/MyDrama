@@ -83,7 +83,7 @@ const ListShows = () => {
                 <div className="shows-wrapper">
                   {shows?.map((item) => {
                     return (
-                      <div onClick={() => handleShow(item._id)} key={item._id}>
+                      <div onClick={() => handleShow(item)} key={item._id}>
                         <ShowCard show={item} key={item._id} />
                       </div>
                     )
