@@ -168,14 +168,6 @@
   grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;
 
-  .next-btn {
-    height: 45px;
-    border-radius: 10px;
-    background: #CB2957;
-    font-size: 16px;
-    font-weight: 600;
-  }
-
   .series-card {
     background-color: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -279,7 +271,6 @@
     &__body {
       padding: 0.75rem 0.85rem 0.9rem;
       color: white;
-
     }
 
     &__title {
@@ -309,9 +300,41 @@
   @media (min-width:448px) and (max-width:748px) {
     grid-template-columns: repeat(3, 1fr);
   }
-
 }
 
+// Pagination / Next button (moved outside the grid)
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+
+.next-btn {
+  min-width: 180px;
+  height: 45px;
+  padding: 0 2rem;
+  border: none;
+  border-radius: 10px;
+  background: #CB2957;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+
+  &:hover {
+    background: #a8203f;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
 
 .empty-state {
   text-align: center;

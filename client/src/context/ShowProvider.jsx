@@ -36,15 +36,20 @@ const ShowProvider = ({ children }) => {
     }
   }
 
-  const handleShow = (showId) => {
-    const show = allShows.find((show) => show._id.toString() == showId.toString());
+  const handleShow = (showOrId) => {
+    const show = typeof showOrId === 'object'
+      ? showOrId
+      : allShows.find((item) => item._id.toString() === showOrId.toString());
+
+    if (!show?._id) return;
+
     setToggle(true);
     setShowDetails(show);
-    fetchEpisodes(showId);
+    fetchEpisodes(show._id);
   }
 
   return (
-    <showContext.Provider value={{ showDetails, episodes, toggle, handleShow, fetchEpisodes, onClose,loading }}>
+    <showContext.Provider value={{ showDetails, episodes, toggle, handleShow, fetchEpisodes, onClose, loading }}>
       {children}
     </showContext.Provider>
   );

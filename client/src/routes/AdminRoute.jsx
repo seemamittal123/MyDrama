@@ -6,7 +6,7 @@ const AdminRoute = () => {
   const { user, loading } = useSelector((state) => state.user);
 
   if (loading) {
-    return <div className="spinner2">
+    return <div className="spinner">
       <img src={loader} alt="" /> </div>;
   }
 

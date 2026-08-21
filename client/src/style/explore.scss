@@ -1,4 +1,4 @@
-@use './mixin.scss' as *;
+@use './mixin.scss' as*;
 
 .explore-wrapper {
   padding: 20px;
@@ -29,16 +29,23 @@
     min-height: 80vh;
   }
 
-  .more-btn {
-    width: 170px;
-    height: 45px;
-    border-radius: 10px;
-    background: #CB2957;
-    font-size: 16px;
-    font-weight: 600;
 
-    @media (max-width:748px) {
-      width: 100%;
+  .more-btn {
+    width: 100%;
+
+    @include flex-center;
+
+    p {
+      width: 170px;
+      height: 45px;
+      border-radius: 10px;
+      background: #CB2957;
+      font-size: 16px;
+      font-weight: 600;
+      @include flex-center;
+      @media (max-width:748px) {
+        width: 100%;
+      }
     }
   }
 }

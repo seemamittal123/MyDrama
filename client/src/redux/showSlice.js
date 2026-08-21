@@ -5,7 +5,9 @@ const initialState = {
   tranding: [],
   popular: [],
   allShows: [],
+  allShowsTotalPages: 1,
   loading: true,
+  trandingLoading: true,
 };
 const showSlice = createSlice({
   name: "user",
@@ -14,6 +16,15 @@ const showSlice = createSlice({
     setAllShows: (state, action) => {
       state.allShows = action.payload;
       state.loading = false;
+    },
+    setAllShowsPagination: (state, action) => {
+      state.allShowsTotalPages = action.payload.totalPages;
+    },
+    appendShows: (state, action) => {
+      const existingShowIds = new Set(state.allShows.map((show) => show._id));
+      state.allShows.push(
+        ...action.payload.filter((show) => !existingShowIds.has(show._id)),
+      );
     },
     setNewShows: (state, action) => {
       state.allShows.unshift(action.payload);
@@ -37,6 +48,7 @@ const showSlice = createSlice({
     setTranding: (state, action) => {
       state.tranding = action.payload;
       state.loading = false;
+      state.trandingLoading = false;
     },
   },
 });
@@ -48,5 +60,7 @@ export const {
   setNewShows,
   removeShow,
   setAllShows,
+  setAllShowsPagination,
+  appendShows,
 } = showSlice.actions;
 export default showSlice.reducer;

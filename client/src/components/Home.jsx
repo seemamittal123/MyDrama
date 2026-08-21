@@ -7,7 +7,7 @@ import Show from './Show';
 import { showContext } from '../context/ShowProvider';
 import Scroll from './Scroll';
 const Home = () => {
-  const { allShows, popular, latest, tranding, loading } = useSelector(state => state.show);
+  const { allShows, popular, latest, tranding, loading, trandingLoading } = useSelector(state => state.show);
   const { continueWatch, history } = useSelector(state => state.user);
   const [dramas, setDramas] = useState({});
 
@@ -44,7 +44,7 @@ const Home = () => {
     <div className=''>
       <div className="inner-section">
         <div className="swipper-wrapper">
-          <TopSlider data={tranding} handleShow={handleShow} />
+          <TopSlider data={tranding} handleShow={handleShow} loading={trandingLoading} />
         </div>
         <div className="container">
           <div className="slider-wrapper">

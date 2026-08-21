@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { useSelector } from 'react-redux';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, EffectFade, Navigation } from 'swiper/modules';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -10,10 +9,13 @@ import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
 import { IoInformationCircleOutline } from "react-icons/io5";
 import { FaPlay } from "react-icons/fa";
-const TopSlider = ({ data, handleShow }) => {
+import TopSliderSkeleton from './TopSliderSkeleton';
+
+const TopSlider = ({ data, handleShow, loading }) => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
+  if (loading) return <TopSliderSkeleton />;
   if (!data || data.length === 0) return null;
 
   return (
@@ -35,20 +37,20 @@ const TopSlider = ({ data, handleShow }) => {
         className="imgSection"
       >
         {
-          
+
           data.map((item, index) => (
-            <SwiperSlide key={item.id || index}>
+            <SwiperSlide key={item._id || item.id || index}>
               <div className="info-section">
                 <h1 className="title">{item.title}</h1>
                 <h3>{item.description}</h3>
                 <div className="btn-wrapper">
-                  <button className='play' onClick={() => handleShow(item._id)}>
+                  <button className='play' onClick={() => handleShow(item)}>
                     <span>
                       <FaPlay />
                     </span>
                     Play
                   </button>
-                  <button className='more-info' onClick={() => handleShow(item._id)}>
+                  <button className='more-info' onClick={() => handleShow(item)}>
                     <span>
                       <IoInformationCircleOutline />
                     </span>

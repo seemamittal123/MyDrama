@@ -197,18 +197,27 @@ export const getAllShow = async (req, res) => {
 export const searchShow = async (req, res) => {
   try {
     const { search } = req.query;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
 
     if (!search || search.trim() === "") {
       return res.status(400).json({ message: "Search query is required" });
     }
 
-    const shows = await Show.find({
+    const filter = {
       title: { $regex: search, $options: "i" },
-    });
+    };
+    const shows = await Show.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+    const total = await Show.countDocuments(filter);
 
     return res.status(200).json({
       success: true,
       shows,
+      hasMore: skip + shows.length < total,
     });
   } catch (error) {
     return res.status(500).json({ message: `Search error: ${error.message}` });

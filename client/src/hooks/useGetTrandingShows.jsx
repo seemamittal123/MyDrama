@@ -14,10 +14,11 @@ const useGetTrandingShows = () => {
         const { data } = await axios.get(`${server_Url}/api/shows/tranding-show`, { withCredentials: true });
         dispatch(setTranding(data.shows))
       } catch (error) {
+        dispatch(setTranding([]));
         console.log(error.response);
       }
     }
-      fetchUserWatchList();
+    fetchUserWatchList();
   }, [dispatch])
 }
 

@@ -1,16 +1,38 @@
 import React, { useContext, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import ShowCard from './ShowCard';
 import axios from 'axios';
 import { server_Url } from '../App';
-import Show from './Show';
 import { showContext } from '../context/ShowProvider';
-import loader from '../assets/loader.svg';
 import ShowCardSkeleton from './ShowCardSkeleton';
+import { appendShows } from '../redux/showSlice';
 
 const Explore = () => {
-  const { allShows, loading } = useSelector(state => state.show);
+  const { allShows, allShowsTotalPages, loading } = useSelector(state => state.show);
   const { handleShow } = useContext(showContext);
+  const dispatch = useDispatch();
+  const [page, setPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const hasMore = page < allShowsTotalPages;
+
+  const handleNextPage = async () => {
+    const scrollPosition = window.scrollY;
+    try {
+      setLoadingMore(true);
+      const nextPage = page + 1;
+      const { data } = await axios.get(`${server_Url}/api/shows/all/shows`, {
+        params: { page: nextPage, limit: 20 },
+        withCredentials: true,
+      });
+      dispatch(appendShows(data.shows));
+      setPage(nextPage);
+    } catch (error) {
+      console.log(error?.response);
+    } finally {
+      setLoadingMore(false);
+      window.requestAnimationFrame(() => window.scrollTo(0, scrollPosition));
+    }
+  };
 
   const goToShow = (e, showId) => {
     handleShow(showId);
@@ -26,15 +48,23 @@ const Explore = () => {
                 {Array.from({ length: 20 }, (_, index) => <ShowCardSkeleton key={index} />)}
               </div>
               :
-              <div className="shows-wrapper">
-                {
-                  allShows?.map((show) => (
-                    <div key={show?.id || show?.title} onClick={(e) => goToShow(e, show._id)}>
-                      <ShowCard show={show} />
-                    </div>
-                  ))
-                }
-              </div>
+              <>
+                <div className="shows-wrapper">
+                  {
+                    allShows?.map((show) => (
+                      <div key={show._id} onClick={(e) => goToShow(e, show._id)}>
+                        <ShowCard show={show} />
+                      </div>
+                    ))
+                  }
+
+                </div>
+                {hasMore && !loading && (
+                  <button onClick={handleNextPage} disabled={loadingMore} className="more-btn">
+                    <p>{loadingMore ? 'Loading...' : 'Next'}</p>
+                  </button>
+                )}
+              </>
           }
         </div>
       </div>

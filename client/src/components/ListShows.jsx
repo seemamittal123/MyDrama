@@ -91,7 +91,7 @@ const ListShows = () => {
                 </div>
                 {hasMore && (
                   <button onClick={handleLoadMore} disabled={loading} className="more-btn">
-                    {loading ? <span> <img src={loader} /> Loading... </span> : "More"}
+                    <p> {loading ? <span> <img src={loader} /> Loading... </span> : "More"}</p>
                   </button>
                 )}
               </div>
