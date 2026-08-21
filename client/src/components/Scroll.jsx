@@ -59,7 +59,7 @@ const Scroll = ({ title, items = [], loading }) => {
                 items?.map((item) => (
                   <div
                     key={item._id}
-                    onClick={() => handleShow(item._id)}
+                    onClick={() => handleShow(item)}
                   >
 
                     <ShowCard show={item} />
