@@ -64,6 +64,23 @@
   }
 }
 
+.admin-stats-skeleton {
+  .stat-card {
+    min-height: 5.25rem;
+  }
+}
+
+.skeleton-stat-label {
+  width: 5.5rem;
+  height: 10px;
+}
+
+.skeleton-stat-value {
+  width: 3rem;
+  height: 24px;
+  margin-top: 0.65rem;
+}
+
 .admin-toolbar {
   display: flex;
   align-items: center;
@@ -300,6 +317,31 @@
   @media (min-width:448px) and (max-width:748px) {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+.series-grid-skeleton {
+  .series-card {
+    pointer-events: none;
+  }
+
+  .series-card__poster {
+    background-color: #171717;
+  }
+
+  .series-card__body {
+    min-height: 4.5rem;
+  }
+}
+
+.skeleton-show-title {
+  width: 75%;
+  height: 13px;
+}
+
+.skeleton-show-meta {
+  width: 55%;
+  height: 10px;
+  margin-top: 0.65rem;
 }
 
 // Pagination / Next button (moved outside the grid)

@@ -97,7 +97,7 @@ export default function EpisodePlayerPage() {
 
   if (loading) {
     return (
-      <div className="spinner2">
+      <div className="spinner">
         <img src={loader} alt="" />
       </div>
     );

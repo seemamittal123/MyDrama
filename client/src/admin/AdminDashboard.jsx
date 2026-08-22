@@ -10,6 +10,31 @@ import { removeShow } from "../redux/showSlice";
 
 const STATUS_FILTERS = ["all", "ongoing", "completed", "upcoming"];
 
+const StatsSkeleton = () => (
+  <div className="admin-stats admin-stats-skeleton" aria-hidden="true">
+    {[1, 2, 3, 4].map((stat) => (
+      <div className="stat-card" key={stat}>
+        <div className="skeleton-line skeleton-stat-label" />
+        <div className="skeleton-line skeleton-stat-value" />
+      </div>
+    ))}
+  </div>
+);
+
+const SeriesSkeleton = () => (
+  <div className="series-grid series-grid-skeleton" aria-label="Loading shows">
+    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((card) => (
+      <div className="series-card" key={card}>
+        <div className="series-card__poster skeleton-shimmer" />
+        <div className="series-card__body">
+          <div className="skeleton-line skeleton-show-title" />
+          <div className="skeleton-line skeleton-show-meta" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 const AdminDashboard = () => {
 
   const navigate = useNavigate();
@@ -18,6 +43,7 @@ const AdminDashboard = () => {
   const [shows, setShows] = useState([])
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
   const stats = useMemo(() => {
@@ -28,6 +54,7 @@ const AdminDashboard = () => {
   }, [shows]);
 
   const searchShow = async () => {
+    setLoading(true);
     try {
       if (!search) return;
       setPage(1);
@@ -36,15 +63,18 @@ const AdminDashboard = () => {
       setShows(data.shows)
     } catch (error) {
       console.log(error.response);
+    } finally {
+      setLoading(false);
     }
   };
   const filteredShows = async () => {
+    setLoading(true);
     try {
       if (!statusFilter) return;
       setPage(1);
 
       if (statusFilter === "all") {
-        fetchShows();
+        await fetchShows();
         return;
       }
 
@@ -52,6 +82,8 @@ const AdminDashboard = () => {
       setShows(data.shows)
     } catch (error) {
       console.log(error.response);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,6 +116,7 @@ const AdminDashboard = () => {
 
 
   const fetchShows = async (pageNum = 1) => {
+    setLoading(true);
     try {
       const params = new URLSearchParams({
         page: pageNum,
@@ -101,6 +134,8 @@ const AdminDashboard = () => {
       });
     } catch (error) {
       console.log(error?.response);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -133,24 +168,26 @@ const AdminDashboard = () => {
         </Link>
       </div>
 
-      <div className="admin-stats">
-        <div className="stat-card">
-          <div className="stat-card__label">Total Shows</div>
-          <div className="stat-card__value">{stats.totalShows}</div>
+      {loading ? <StatsSkeleton /> : (
+        <div className="admin-stats">
+          <div className="stat-card">
+            <div className="stat-card__label">Total Shows</div>
+            <div className="stat-card__value">{stats.totalShows}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-card__label">Total Episodes</div>
+            <div className="stat-card__value">{stats.totalEpisodes}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-card__label">Ongoing</div>
+            <div className="stat-card__value">{stats.ongoing}</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-card__label">Total Views</div>
+            <div className="stat-card__value">{stats.totalViews.toLocaleString()}</div>
+          </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-card__label">Total Episodes</div>
-          <div className="stat-card__value">{stats.totalEpisodes}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-card__label">Ongoing</div>
-          <div className="stat-card__value">{stats.ongoing}</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-card__label">Total Views</div>
-          <div className="stat-card__value">{stats.totalViews.toLocaleString()}</div>
-        </div>
-      </div>
+      )}
 
       <div className="admin-toolbar">
         <div className="search-box">
@@ -178,7 +215,9 @@ const AdminDashboard = () => {
         </select>
       </div>
 
-      {shows?.length === 0 ? (
+      {loading ? (
+        <SeriesSkeleton />
+      ) : shows?.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state__title">No shows found</div>
           <p>Try a different search or filter, or add a new series.</p>

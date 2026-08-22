@@ -2,6 +2,7 @@ import Show from "../models/show.js";
 import uploadOnCloudinary from "../utils/uploadOnCloudinary.js";
 import Episode from "../models/episode.js";
 import Like from "../models/likes.js";
+import mongoose from "mongoose";
 
 export const createShow = async (req, res) => {
   try {
@@ -206,7 +207,10 @@ export const searchShow = async (req, res) => {
     }
 
     const filter = {
-      title: { $regex: search, $options: "i" },
+      $or: [
+        { title: { $regex: search, $options: "i" } },
+        ...(mongoose.Types.ObjectId.isValid(search) ? [{ _id: search }] : []),
+      ],
     };
     const shows = await Show.find(filter)
       .sort({ createdAt: -1 })

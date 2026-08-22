@@ -11,12 +11,38 @@ import {
   RotateCcw,
   RotateCw,
   Captions,
+  PictureInPicture2,
+  Loader2,
 } from "lucide-react";
 import { RxCross1 } from "react-icons/rx";
 import { useNavigate } from "react-router-dom";
 
 const MOBILE_QUERY = "(max-width: 768px)";
 const PORTRAIT_QUERY = "(orientation: portrait)";
+const SPEED_STEPS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
+// ---- Cross-browser fullscreen helpers (iOS Safari needs webkit-prefixed
+// APIs, and old iOS only supports native fullscreen on the <video> tag
+// itself rather than a wrapping div). ----
+const requestFullscreenCompat = (el, videoEl) => {
+  if (!el) return Promise.reject(new Error("No element"));
+  if (el.requestFullscreen) return el.requestFullscreen();
+  if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+  if (videoEl?.webkitEnterFullscreen) {
+    videoEl.webkitEnterFullscreen();
+    return Promise.resolve();
+  }
+  return Promise.reject(new Error("Fullscreen API not supported"));
+};
+
+const exitFullscreenCompat = () => {
+  if (document.exitFullscreen) return document.exitFullscreen();
+  if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+  return Promise.resolve();
+};
+
+const isDocFullscreen = () =>
+  !!(document.fullscreenElement || document.webkitFullscreenElement);
 
 const VideoPlayer = ({
   thumbnail_url,
@@ -30,6 +56,7 @@ const VideoPlayer = ({
   const containerRef = useRef(null);
   const trackRef = useRef(null);
   const hideTimeoutRef = useRef(null);
+  const lastTapRef = useRef({ time: 0, side: null });
 
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
@@ -39,6 +66,11 @@ const VideoPlayer = ({
   const [showControls, setShowControls] = useState(true);
   const [captionsOn, setCaptionsOn] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [buffering, setBuffering] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
+  const [skipFlash, setSkipFlash] = useState(null); // { side: 'left'|'right' } transient tap feedback
+  const [showCaptionsMenu, setShowCaptionsMenu] = useState(false);
+  const captionsMenuRef = useRef(null);
 
   // ---- Mobile / rotation awareness ----
   const [isMobile, setIsMobile] = useState(
@@ -119,19 +151,23 @@ const VideoPlayer = ({
   // Android Chrome). Where those aren't supported (iOS Safari, etc.) the
   // `video-player--rotated` CSS class rotates the player itself so it still
   // fills the screen in landscape while the phone stays physically portrait.
+  // NOTE: the CSS rotation fallback is applied unconditionally (it isn't
+  // gated behind the fullscreen/orientation-lock promises), so the player
+  // still visually flips to landscape even on browsers that block
+  // requestFullscreen/orientation.lock outside of a direct user gesture.
   const enterLandscapeMode = async () => {
     if (!isMobile) return;
     setForceLandscape(true);
 
     try {
-      if (containerRef.current?.requestFullscreen) {
-        await containerRef.current.requestFullscreen();
-      }
+      await requestFullscreenCompat(containerRef.current, videoRef.current);
       if (window.screen?.orientation?.lock) {
         await window.screen.orientation.lock("landscape");
       }
     } catch (err) {
-      // Native lock unavailable/blocked — the CSS rotation fallback covers it
+      // Native lock unavailable/blocked (often because this wasn't called
+      // synchronously from a user gesture) — the CSS rotation fallback
+      // above still covers it.
       console.log("Orientation lock unavailable, using CSS fallback:", err?.message);
     }
   };
@@ -143,10 +179,19 @@ const VideoPlayer = ({
     } catch (err) {
       // ignore
     }
-    if (document.fullscreenElement) {
-      document.exitFullscreen?.().catch(() => {});
+    if (isDocFullscreen()) {
+      exitFullscreenCompat().catch(() => {});
     }
   };
+
+  // ---- Rotate into landscape the moment an episode loads, before the
+  // user even presses play (mobile only). ----
+  useEffect(() => {
+    if (isMobile && videoUrl) {
+      enterLandscapeMode();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoUrl, isMobile]);
 
   // ---- End / pause tracking ----
   useEffect(() => {
@@ -168,20 +213,30 @@ const VideoPlayer = ({
       });
     };
 
+    const handleWaiting = () => setBuffering(true);
+    const handlePlaying = () => setBuffering(false);
+    const handleCanPlay = () => setBuffering(false);
+
     video.addEventListener("ended", handleEnded);
     video.addEventListener("pause", handlePause);
+    video.addEventListener("waiting", handleWaiting);
+    video.addEventListener("playing", handlePlaying);
+    video.addEventListener("canplay", handleCanPlay);
 
     return () => {
       video.removeEventListener("ended", handleEnded);
       video.removeEventListener("pause", handlePause);
+      video.removeEventListener("waiting", handleWaiting);
+      video.removeEventListener("playing", handlePlaying);
+      video.removeEventListener("canplay", handleCanPlay);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onProgress]);
 
-  // ---- Fullscreen change listener ----
+  // ---- Fullscreen change listener (standard + webkit-prefixed) ----
   useEffect(() => {
     const handleFsChange = () => {
-      const isFs = !!document.fullscreenElement;
+      const isFs = isDocFullscreen();
       setIsFullscreen(isFs);
       // If the user backs out of native fullscreen (e.g. Android back button),
       // drop the forced-landscape mode and any orientation lock with it.
@@ -195,8 +250,43 @@ const VideoPlayer = ({
       }
     };
     document.addEventListener("fullscreenchange", handleFsChange);
-    return () => document.removeEventListener("fullscreenchange", handleFsChange);
+    document.addEventListener("webkitfullscreenchange", handleFsChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFsChange);
+      document.removeEventListener("webkitfullscreenchange", handleFsChange);
+    };
   }, []);
+
+  // ---- Keep the <track> mode in sync with captionsOn, instead of relying
+  // solely on the `default` attribute (unreliable across browsers). ----
+  useEffect(() => {
+    const track = trackRef.current?.track;
+    if (!track) return;
+    track.mode = captionsOn ? "showing" : "hidden";
+  }, [subtitleUrl, captionsOn]);
+
+  // ---- Close the captions menu on outside click or Escape ----
+  useEffect(() => {
+    if (!showCaptionsMenu) return;
+
+    const handleOutsideClick = (e) => {
+      if (captionsMenuRef.current && !captionsMenuRef.current.contains(e.target)) {
+        setShowCaptionsMenu(false);
+      }
+    };
+    const handleEscape = (e) => {
+      if (e.key === "Escape") setShowCaptionsMenu(false);
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [showCaptionsMenu]);
 
   // ---- Keyboard shortcuts ----
   useEffect(() => {
@@ -220,6 +310,9 @@ const VideoPlayer = ({
           break;
         case "KeyM":
           toggleMute();
+          break;
+        case "KeyC":
+          setCaptionsOn((prev) => !prev);
           break;
         default:
           break;
@@ -331,20 +424,48 @@ const VideoPlayer = ({
     );
   };
 
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen?.();
+  const toggleFullscreen = async () => {
+    if (!isDocFullscreen()) {
+      try {
+        await requestFullscreenCompat(containerRef.current, videoRef.current);
+      } catch (err) {
+        console.log("Fullscreen request failed:", err?.message);
+      }
     } else {
-      document.exitFullscreen?.();
+      exitFullscreenCompat().catch(() => {});
     }
   };
 
-  const toggleCaptions = () => {
-    const track = videoRef.current?.textTracks?.[0];
-    if (!track) return;
-    const next = !captionsOn;
-    track.mode = next ? "showing" : "hidden";
-    setCaptionsOn(next);
+  const toggleCaptionsMenu = () => {
+    setShowCaptionsMenu((prev) => !prev);
+  };
+
+  const selectCaptionsOption = (on) => {
+    setCaptionsOn(on);
+    setShowCaptionsMenu(false);
+  };
+
+  const togglePip = async () => {
+    const video = videoRef.current;
+    if (!video) return;
+    try {
+      if (document.pictureInPictureElement) {
+        await document.exitPictureInPicture();
+      } else if (document.pictureInPictureEnabled) {
+        await video.requestPictureInPicture();
+      }
+    } catch (err) {
+      console.log("Picture-in-picture unavailable:", err?.message);
+    }
+  };
+
+  const cycleSpeed = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    const currentIndex = SPEED_STEPS.indexOf(playbackRate);
+    const next = SPEED_STEPS[(currentIndex + 1) % SPEED_STEPS.length];
+    video.playbackRate = next;
+    setPlaybackRate(next);
   };
 
   const formatTime = (seconds) => {
@@ -364,6 +485,24 @@ const VideoPlayer = ({
   const onNextEpisode = () => {
     handleNextEpisode?.();
     enterLandscapeMode();
+  };
+
+  // ---- Mobile double-tap zones: single tap toggles controls, double tap
+  // on the left/right third skips -10/+10s (like most streaming apps). ----
+  const handleZoneTap = (side) => {
+    if (!isMobile) return;
+    const now = Date.now();
+    const last = lastTapRef.current;
+
+    if (last.side === side && now - last.time < 320) {
+      skip(side === "left" ? -10 : 10);
+      setSkipFlash(side);
+      setTimeout(() => setSkipFlash(null), 400);
+      lastTapRef.current = { time: 0, side: null };
+    } else {
+      lastTapRef.current = { time: now, side };
+      resetHideTimer();
+    }
   };
 
   const seekPercent = duration ? (progress / duration) * 100 : 0;
@@ -391,8 +530,8 @@ const VideoPlayer = ({
       <video
         ref={videoRef}
         onTimeUpdate={handleTimeUpdate}
-        onClick={togglePlay}
-        onDoubleClick={toggleFullscreen}
+        onClick={!isMobile ? togglePlay : undefined}
+        onDoubleClick={!isMobile ? toggleFullscreen : undefined}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         poster={thumbnail_url}
@@ -410,6 +549,43 @@ const VideoPlayer = ({
           />
         )}
       </video>
+
+      {buffering && (
+        <div className="video-player__spinner">
+          <Loader2 size={40} className="video-player__spinner-icon" />
+        </div>
+      )}
+
+      {/* Invisible tap zones for mobile: left third = -10s (double tap),
+          right third = +10s (double tap), single tap toggles controls. */}
+      {isMobile && (
+        <div className="video-player__tap-zones">
+          <div
+            className="video-player__tap-zone video-player__tap-zone--left"
+            onClick={() => handleZoneTap("left")}
+          >
+            {skipFlash === "left" && (
+              <span className="video-player__tap-flash">
+                <RotateCcw size={22} /> 10
+              </span>
+            )}
+          </div>
+          <div
+            className="video-player__tap-zone video-player__tap-zone--center"
+            onClick={togglePlay}
+          />
+          <div
+            className="video-player__tap-zone video-player__tap-zone--right"
+            onClick={() => handleZoneTap("right")}
+          >
+            {skipFlash === "right" && (
+              <span className="video-player__tap-flash">
+                <RotateCw size={22} /> 10
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className={`video-player__center-controls ${showControls ? "visible" : ""}`}>
         <button className="video-player__skip-btn" onClick={() => skip(-10)}>
@@ -485,13 +661,60 @@ const VideoPlayer = ({
           </div>
 
           <div className="video-player__right">
+            <button
+              className="video-player__btn video-player__speed"
+              onClick={cycleSpeed}
+              title="Playback speed"
+            >
+              {playbackRate}x
+            </button>
+
             {subtitleUrl && (
+              <div className="video-player__captions-wrap" ref={captionsMenuRef}>
+                <button
+                  className={`video-player__btn ${captionsOn ? "active" : ""}`}
+                  onClick={toggleCaptionsMenu}
+                  title="Captions"
+                  aria-haspopup="menu"
+                  aria-expanded={showCaptionsMenu}
+                >
+                  <Captions size={19} />
+                </button>
+
+                {showCaptionsMenu && (
+                  <div className="video-player__captions-menu" role="menu">
+                    <button
+                      className={`video-player__captions-option ${
+                        !captionsOn ? "selected" : ""
+                      }`}
+                      onClick={() => selectCaptionsOption(false)}
+                      role="menuitemradio"
+                      aria-checked={!captionsOn}
+                    >
+                      Off
+                    </button>
+                    <button
+                      className={`video-player__captions-option ${
+                        captionsOn ? "selected" : ""
+                      }`}
+                      onClick={() => selectCaptionsOption(true)}
+                      role="menuitemradio"
+                      aria-checked={captionsOn}
+                    >
+                      English
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {document.pictureInPictureEnabled && (
               <button
-                className={`video-player__btn ${captionsOn ? "active" : ""}`}
-                onClick={toggleCaptions}
-                title="Toggle captions"
+                className="video-player__btn"
+                onClick={togglePip}
+                title="Picture in picture"
               >
-                <Captions size={19} />
+                <PictureInPicture2 size={18} />
               </button>
             )}
 

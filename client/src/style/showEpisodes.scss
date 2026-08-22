@@ -125,6 +125,36 @@
   }
 }
 
+.show-summary-skeleton {
+  .show-summary__poster {
+    background-color: #171717;
+  }
+
+  .show-summary__tags {
+    align-items: center;
+  }
+
+  .skeleton-line {
+    flex-shrink: 0;
+  }
+}
+
+.skeleton-meta {
+  width: 4rem;
+  height: 10px;
+}
+
+.skeleton-description {
+  width: 90%;
+  height: 11px;
+  margin-top: 10px;
+}
+
+.skeleton-description-short {
+  width: 65%;
+  margin-top: 6px;
+}
+
 .section-header {
   display: flex;
   align-items: center;
@@ -271,6 +301,31 @@
     gap: 0.5rem;
     flex-shrink: 0;
   }
+}
+
+.episode-row-skeleton {
+  .episode-row__number {
+    background-color: #171717;
+  }
+
+  .episode-row__thumb {
+    background-color: #171717;
+  }
+
+  .skeleton-line {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.skeleton-episode-title {
+  width: min(18rem, 70%);
+  height: 13px;
+}
+
+.skeleton-episode-meta {
+  width: 9rem;
+  height: 10px;
+  margin-bottom: 0;
 }
 
 .empty-state {
