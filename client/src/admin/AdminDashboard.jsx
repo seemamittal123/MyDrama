@@ -71,15 +71,26 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       if (!statusFilter) return;
-      setPage(1);
 
       if (statusFilter === "all") {
         await fetchShows();
         return;
       }
 
-      const { data } = await axios.get(`${server_Url}/api/shows/filter/shows?q=${statusFilter}`, { withCredentials: true })
-      setShows(data.shows)
+      const params = new URLSearchParams({
+        q: statusFilter,
+        page,
+        limit: 20,
+      });
+      const { data } = await axios.get(`${server_Url}/api/shows/filter/shows?${params}`, { withCredentials: true });
+      setShows((previousShows) => {
+        if (page === 1) return data.shows;
+
+        const existingShowIds = new Set(previousShows.map((show) => show._id));
+        const newShows = data.shows.filter((show) => !existingShowIds.has(show._id));
+        return [...previousShows, ...newShows];
+      });
+      setTotalPages(data.hasMore ? page + 1 : page);
     } catch (error) {
       console.log(error.response);
     } finally {
@@ -203,7 +214,10 @@ const AdminDashboard = () => {
         <select
           className="filter-select"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => {
+            setPage(1);
+            setStatusFilter(e.target.value);
+          }}
         >
           {STATUS_FILTERS.map((status) => (
             <option key={status} value={status}>
